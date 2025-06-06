@@ -1,0 +1,485 @@
+{% extends "arcapp/base.html" %}
+{% load static %} {% block title %}Claim Retrieval and Update{% endblock %}
+
+{% block content %}
+<style>
+    * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    }
+
+    .container {
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 30px 20px;
+        background-color: #f8fafc;
+    }
+
+    h1 {
+        text-align: center;
+        margin-bottom: 40px;
+        color: #2c3e50;
+        font-weight: 600;
+        position: relative;
+        padding-bottom: 15px;
+    }
+
+    h1:after {
+        content: '';
+        position: absolute;
+        bottom: 0;
+        left: 50%;
+        transform: translateX(-50%);
+        width: 100px;
+        height: 4px;
+        background: linear-gradient(90deg, #2ecc71, #e67e22);
+        border-radius: 2px;
+    }
+
+    .report-container {
+        display: grid;
+        grid-template-columns: 1fr;
+        gap: 25px;
+    }
+
+    .report-filters {
+        background: linear-gradient(145deg, #ffffff, #f1f8ff);
+        border-radius: 12px;
+        padding: 30px;
+        box-shadow: 0 10px 30px rgba(46, 204, 113, 0.1), 
+                    0 5px 15px rgba(230, 126, 34, 0.05);
+        border: 1px solid #eaf7f0;
+    }
+
+    .form-group {
+        margin-bottom: 25px;
+        transition: all 0.3s ease;
+    }
+
+    .form-group label {
+        display: block;
+        margin-bottom: 8px;
+        font-weight: 600;
+        color: #34495e;
+        font-size: 15px;
+    }
+
+    .form-group input[type="text"],
+    .form-group input[type="date"],
+    .form-group input[type="file"],
+    .form-group select {
+        width: 100%;
+        padding: 14px;
+        border: 1px solid #e0e7ff;
+        border-radius: 8px;
+        font-size: 16px;
+        background: #ffffff;
+        transition: all 0.3s;
+        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.03);
+    }
+
+    .form-group input:focus,
+    .form-group select:focus {
+        border-color: #2ecc71;
+        box-shadow: 0 0 0 3px rgba(46, 204, 113, 0.2);
+        outline: none;
+    }
+
+    .date-range {
+        display: grid;
+        grid-template-columns: 1fr;
+        gap: 12px;
+    }
+    
+    @media (min-width: 576px) {
+        .date-range {
+            grid-template-columns: 1fr 1fr;
+        }
+    }
+
+    .filter-section {
+        margin-bottom: 35px;
+        position: relative;
+        padding-bottom: 25px;
+    }
+
+    .filter-section:not(:last-child):after {
+        content: '';
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        width: 100%;
+        height: 1px;
+        background: linear-gradient(90deg, transparent, #e0f0e5, transparent);
+    }
+
+    .filter-section h2 {
+        color: #2c3e50;
+        margin-bottom: 20px;
+        padding-bottom: 12px;
+        border-bottom: 2px solid #e0f0e5;
+        font-weight: 600;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+
+    .filter-section h2:before {
+        content: '';
+        display: block;
+        width: 8px;
+        height: 25px;
+        background: linear-gradient(180deg, #2ecc71, #e67e22);
+        border-radius: 4px;
+    }
+
+    .filter-section p {
+        color: #5a6b82;
+        margin-bottom: 20px;
+        line-height: 1.6;
+    }
+
+    .button-container {
+        margin-top: 25px;
+        display: flex;
+        flex-wrap: wrap;
+        gap: 15px;
+    }
+
+    .button-container button, 
+    .button-container input[type="submit"] {
+        border: none;
+        padding: 14px 28px;
+        font-size: 16px;
+        font-weight: 600;
+        border-radius: 8px;
+        cursor: pointer;
+        transition: all 0.3s;
+        min-width: 220px;
+        text-align: center;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.08);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+    }
+
+    .button-container button:hover, 
+    .button-container input[type="submit"]:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 6px 12px rgba(0, 0, 0, 0.12);
+    }
+
+    .button-container button:active, 
+    .button-container input[type="submit"]:active {
+        transform: translateY(1px);
+    }
+
+    .button-container button#download-button {
+        background: linear-gradient(135deg, #2ecc71, #27ae60);
+        color: white;
+    }
+    .button-container button#download-button:hover {
+        background: linear-gradient(135deg, #27ae60, #219653);
+    }
+
+    /* Styles for the new combined "Import and Update Claims" button */
+    .button-container button#import-update-button { 
+        background: linear-gradient(135deg, #e67e22, #d35400); /* Orange theme like original update */
+        color: white;
+    }
+    .button-container button#import-update-button:hover {
+        background: linear-gradient(135deg, #d35400, #ba4a00);
+    }
+    .button-container button#import-update-button:disabled {
+        background: #bdc3c7;
+        cursor: not-allowed;
+        transform: none;
+        box-shadow: none;
+    }
+
+    .message {
+        margin-top: 2rem;
+        padding: 20px;
+        border-radius: 10px;
+        font-size: 16px;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
+        position: relative;
+        overflow: hidden;
+    }
+    .message:before {
+        content: '';
+        position: absolute;
+        left: 0;
+        top: 0;
+        width: 5px;
+        height: 100%;
+    }
+    .error-message {
+        background-color: #ffefef;
+        color: #721c24;
+        border: 1px solid #f8d7da;
+    }
+    .error-message:before { background: #e74c3c; }
+    .error-message ul { list-style-type: none; padding-left: 0; text-align: left; margin-top: 15px; }
+    .success-message {
+        background-color: #edf9f0;
+        color: #155724;
+        border: 1px solid #d4edda;
+    }
+    .success-message:before { background: #2ecc71; }
+    .info-message {
+        background-color: #f0f9ff;
+        color: #0c5460;
+        border: 1px solid #d1ecf1;
+    }
+    .info-message:before { background: #3498db; }
+    .info-message ul { list-style-type: none; padding-left: 0; text-align: left; margin-top: 15px; max-height: 200px; overflow-y: auto; }
+
+    .file-input-container {
+        position: relative;
+        overflow: hidden;
+        border-radius: 8px;
+        border: 1px dashed #cbd5e1;
+        padding: 20px;
+        text-align: center;
+        background: #f8fafc;
+        transition: all 0.3s;
+    }
+    .file-input-container:hover { border-color: #2ecc71; background: #f0fdf4; }
+    .file-input-container.dragover { border-color: #e67e22; background: #fff7eb; }
+    .file-input-container input[type="file"] {
+        position: absolute;
+        left: 0;
+        top: 0;
+        opacity: 0;
+        width: 100%;
+        height: 100%;
+        cursor: pointer;
+    }
+    .file-input-label {
+        display: block;
+        padding: 15px;
+        border-radius: 8px;
+        background: #eaf7f0;
+        color: #27ae60;
+        font-weight: 500;
+        transition: all 0.3s;
+    }
+    .file-input-container:hover .file-input-label { background: #d4f0e2; }
+    .file-input-container i { font-size: 24px; margin-bottom: 10px; display: block; color: #2ecc71; }
+    .file-input-hint { color: #64748b; font-size: 14px; margin-top: 10px; }
+
+    .icon { width: 20px; height: 20px; display: inline-block; vertical-align: middle; background-size: contain; background-repeat: no-repeat; }
+    .icon-download { background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='white'%3E%3Cpath d='M19 9h-4V3H9v6H5l7 7 7-7zM5 18v2h14v-2H5z'/%3E%3C/svg%3E"); }
+    /* icon-import CSS removed as the button is removed */
+    .icon-update { background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='white'%3E%3Cpath d='M17.65 6.35C16.2 4.9 14.21 4 12 4c-4.42 0-7.99 3.58-7.99 8s3.57 8 7.99 8c3.73 0 6.84-2.55 7.73-6h-2.08c-.82 2.33-3.04 4-5.65 4-3.31 0-6-2.69-6-6s2.69-6 6-6c1.66 0 3.14.69 4.22 1.78L13 11h7V4l-2.35 2.35z'/%3E%3C/svg%3E"); }
+
+    @media (max-width: 768px) {
+        .button-container button, 
+        .button-container input[type="submit"] { width: 100%; min-width: auto; }
+        .report-filters { padding: 20px 15px; }
+        .container { padding: 20px 15px; }
+    }
+</style>
+
+<div class="container">
+    <h1>Claim Retrieval and Update System</h1>
+
+    <div class="report-container">
+        <div class="report-filters">
+            <form method="POST" class="claim-retrieval-form" enctype="multipart/form-data">
+                {% csrf_token %}
+                
+                <div class="filter-section">
+                    <h2>Download Filters</h2>
+                    <p>Use these filters to download the report for modification.</p>
+                    <div class="form-group">
+                        <label for="batch_id">Batch ID</label>
+                        <input type="text" id="batch_id" name="batch_id" value="{{ request.POST.batch_id|default:'' }}" placeholder="Enter Batch Number">
+                    </div>
+                    <div class="form-group">
+                        <label for="audit_date_start">Audit Date Range (Optional)</label>
+                        <div class="date-range">
+                            <input type="date" id="audit_date_start" name="audit_date_start" value="{{ request.POST.audit_date_start|default:'' }}" max="{% now 'Y-m-d' %}">
+                            <input type="date" id="audit_date_end" name="audit_date_end" value="{{ request.POST.audit_date_end|default:'' }}" max="{% now 'Y-m-d' %}">
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="audit_by">Audited By (Optional)</label>
+                        <input type="text" id="audit_by" name="audit_by" value="{{ request.POST.audit_by|default:'' }}" placeholder="Enter Auditor Name">
+                    </div>
+                </div>
+
+                <div class="button-container">
+                    <button type="submit" name="action" value="download" id="download-button">
+                        <span class="icon icon-download"></span>
+                        Download Report (CSV)
+                    </button>
+                </div>
+                
+                <hr style="margin: 35px 0; border: 0; height: 1px; background: linear-gradient(90deg, transparent, #e0f0e5, transparent);">
+
+                <div class="filter-section">
+                    <h2>Import and Update Claims</h2>
+                    <p>Upload the modified CSV sheet to import data and update claims in a single step.</p>
+                    <div class="form-group">
+                        <label for="update_sheet">Upload Updated Sheet (.csv)</label>
+                        <div class="file-input-container" id="drop-area">
+                            <input type="file" id="update_sheet" name="update_sheet" accept=".csv">
+                            <div class="file-input-label">
+                                <div><i>📁</i></div>
+                                <span>Drag & drop your file here or click to browse</span>
+                                <div class="file-input-hint">Only .csv files accepted (Max 10MB)</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="button-container">
+                    <button type="submit" name="action" value="import_and_update" id="import-update-button" disabled> 
+                        <span class="icon icon-update"></span> Import and Update Claims
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    {% if messages %}
+        {% for message in messages %}
+            <div class="message {% if message.tags %}{{ message.tags }}-message{% endif %}">
+                {% if message.tags == 'error' %}⚠️ 
+                {% elif message.tags == 'success' %}✅ 
+                {% elif message.tags == 'info' %}ℹ️ 
+                {% endif %}
+                {{ message }}
+            </div>
+        {% endfor %}
+    {% endif %}
+
+    {% if error_message and not messages %} <div class="message error-message"><p>⚠️ {{ error_message }}</p></div>
+    {% endif %}
+    {% if success_message and not messages %} <div class="message success-message">✅ {{ success_message }}</div>
+    {% endif %}
+     {% if info_message and not messages %} <div class="message info-message">ℹ️ {{ info_message }}</div>
+    {% endif %}
+
+    {% if errors_details %}
+        <div class="message error-message" style="margin-top: 10px;">
+            <p><strong>Detailed Errors (Update Stage):</strong></p>
+            <ul>{% for detail in errors_details %}<li>{{ detail }}</li>{% endfor %}</ul>
+        </div>
+    {% endif %}
+
+    {% if processed_records_details %}
+        <div class="message info-message" style="margin-top: 10px;">
+             <p><strong>Processing Details (Update Stage):</strong></p>
+            <ul>{% for detail in processed_records_details %}<li>{{ detail }}</li>{% endfor %}</ul>
+        </div>
+    {% endif %}
+    
+    {% if warnings %} <div class="message info-message" style="background-color: #fff3cd; color: #856404; border-color: #ffeeba; margin-top:10px;">
+             <p><strong>Warnings (Import Stage):</strong></p>
+            <ul>{% for warning in warnings %}<li>⚠️ {{ warning }}</li>{% endfor %}</ul>
+        </div>
+    {% endif %}
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    console.log('DOM fully loaded (2-button combined import/update layout).');
+
+    const dateInputs = document.querySelectorAll('input[type="date"]');
+    dateInputs.forEach(input => {
+        input.addEventListener('focus', function() {
+            try { this.showPicker(); } catch (e) { /* Fallback */ }
+        });
+    });
+
+    const dropArea = document.getElementById('drop-area');
+    const fileInput = document.getElementById('update_sheet');
+    const fileLabel = dropArea ? dropArea.querySelector('.file-input-label') : null;
+    const originalLabelHTML = fileLabel ? fileLabel.innerHTML : '';
+    const importUpdateButton = document.getElementById('import-update-button'); 
+
+    if (!dropArea || !fileInput || !fileLabel) {
+        console.error('CRITICAL: One or more file input elements are missing.');
+    }
+    if (!importUpdateButton) {
+        console.error('CRITICAL: Import and Update button (import-update-button) not found!');
+    }
+
+    if (dropArea && fileInput && fileLabel && importUpdateButton) {
+        ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
+            dropArea.addEventListener(eventName, preventDefaults, false);
+        });
+        function preventDefaults(e) {
+            e.preventDefault();
+            e.stopPropagation();
+        }
+        ['dragenter', 'dragover'].forEach(eventName => dropArea.addEventListener(eventName, highlight, false));
+        ['dragleave', 'drop'].forEach(eventName => dropArea.addEventListener(eventName, unhighlight, false));
+        
+        function highlight() { dropArea.classList.add('dragover'); }
+        function unhighlight() { dropArea.classList.remove('dragover'); }
+
+        dropArea.addEventListener('drop', handleDrop, false);
+        
+        function handleDrop(e) {
+            console.log('File dropped.');
+            const dt = e.dataTransfer;
+            const files = dt.files;
+            
+            if (files.length > 0) {
+                console.log('Dropped file:', files[0].name);
+                if (files[0].name.endsWith('.csv')) {
+                    fileInput.files = files; 
+                    updateFileNameDisplay(files[0].name);
+                    importUpdateButton.disabled = false; 
+                } else {
+                    alert('Invalid file type. Please upload a .csv file.');
+                    if(fileLabel && originalLabelHTML) fileLabel.innerHTML = originalLabelHTML;
+                    fileInput.value = ''; // Clear the invalid file from input
+                    importUpdateButton.disabled = true; 
+                }
+            }
+        }
+        
+        fileInput.addEventListener('change', function() {
+            console.log('File input changed.');
+            if (this.files.length > 0) {
+                const fileName = this.files[0].name;
+                console.log('Selected file:', fileName);
+                if (fileName.endsWith('.csv')) {
+                    updateFileNameDisplay(fileName);
+                    importUpdateButton.disabled = false;
+                } else {
+                    alert('Invalid file type. Please upload a .csv file.');
+                    this.value = ''; 
+                    if(fileLabel && originalLabelHTML) fileLabel.innerHTML = originalLabelHTML;
+                    importUpdateButton.disabled = true;
+                }
+            } else { // No file selected
+                if(fileLabel && originalLabelHTML) fileLabel.innerHTML = originalLabelHTML;
+                importUpdateButton.disabled = true; 
+            }
+        });
+        
+        function updateFileNameDisplay(fileName) {
+            if(fileLabel) {
+                fileLabel.innerHTML = `<div><i>✅</i></div>
+                                    <span>File ready: ${fileName}</span>
+                                    <div class="file-input-hint">Click to change file</div>`;
+            }
+        }
+        
+        // Ensure button is disabled initially if no file is pre-selected
+        if (!fileInput.files || fileInput.files.length === 0) {
+            importUpdateButton.disabled = true;
+        }
+    }
+});
+</script>
+{% endblock content %}

@@ -1,0 +1,221 @@
+{% extends "arcapp/base.html" %}
+
+{% block title %}Claim Retrieval{% endblock %}
+
+{% block content %}
+<style>
+    * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+        font-family: Arial, sans-serif;
+    }
+
+    .container {
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 20px;
+    }
+
+    h1 {
+        text-align: center;
+        margin-bottom: 30px;
+        color: #2c3e50;
+    }
+
+    .report-container {
+        display: grid;
+        grid-template-columns: 1fr;
+        gap: 20px;
+    }
+
+    @media (min-width: 768px) {
+        .report-container {
+            grid-template-columns: 1fr 1fr;
+        }
+    }
+
+    .report-filters, .report-options {
+        background-color: white;
+        border-radius: 8px;
+        padding: 20px;
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+    }
+
+    .form-group {
+        margin-bottom: 20px;
+        transition: all 0.3s ease;
+    }
+
+    .form-group label {
+        display: block;
+        margin-bottom: 8px;
+        font-weight: bold;
+        color: #34495e;
+    }
+
+    .form-group input[type="text"],
+    .form-group input[type="date"],
+    .form-group select {
+        width: 100%;
+        padding: 10px;
+        border: 1px solid #ddd;
+        border-radius: 4px;
+        font-size: 16px;
+    }
+
+    .date-range {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 10px;
+    }
+
+    .filter-section {
+        margin-bottom: 30px;
+    }
+
+    .generate-button-container {
+        margin-top: 30px;
+        text-align: center;
+    }
+
+    #generate-button {
+        background-color: #3498db;
+        color: white;
+        border: none;
+        padding: 15px 30px;
+        font-size: 18px;
+        border-radius: 4px;
+        cursor: pointer;
+        transition: background-color 0.3s;
+    }
+
+    #generate-button:hover {
+        background-color: #2980b9;
+    }
+
+    .message {
+        margin-top: 1.5rem;
+        padding: 1rem;
+        border-radius: 4px;
+        text-align: center;
+    }
+
+    .error-message {
+        background-color: #f8d7da;
+        color: #721c24;
+        border: 1px solid #f5c6cb;
+    }
+
+    .success-message {
+        background-color: #d4edda;
+        color: #155724;
+        border: 1px solid #c3e6cb;
+    }
+</style>
+
+<div class="container">
+    <h1>Claim Retrieval System</h1>
+
+    <div class="report-container">
+        <!-- Left Column -->
+        <div class="report-filters">
+            <h2>Retrieval Filters</h2>
+            
+            <form method="POST" class="claim-retrieval-form">
+                {% csrf_token %}
+                
+                <div class="filter-section">
+                    <div class="form-group">
+                        <label for="batch_id">Batch ID</label>
+                        <input type="text" 
+                               id="batch_id" 
+                               name="batch_id" 
+                               placeholder="Enter Batch Number">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="audit_date_start">Audit Date Range</label>
+                        <div class="date-range">
+                            <input type="date" 
+                                   id="audit_date_start" 
+                                   name="audit_date_start"
+                                   max="{% now 'Y-m-d' %}">
+                            <input type="date" 
+                                   id="audit_date_end" 
+                                   name="audit_date_end"
+                                   max="{% now 'Y-m-d' %}">
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="audit_by">Audited By</label>
+                        <input type="text" 
+                               id="audit_by" 
+                               name="audit_by" 
+                               placeholder="Enter Auditor Name">
+                    </div>
+                </div>
+
+                <div class="generate-button-container">
+                    <button type="submit" id="generate-button">Generate Report</button>
+                </div>
+            </form>
+        </div>
+
+        <!-- Right Column -->
+        <div class="report-options">
+            <h2>Report Options</h2>
+            
+            <div class="filter-section">
+                <h3>Additional Filters</h3>
+                
+                <div class="form-group">
+                    <label for="policy_number">Policy Number</label>
+                    <input type="text" 
+                           id="policy_number" 
+                           name="policy_number" 
+                           placeholder="Optional Policy Number">
+                </div>
+
+                <div class="form-group">
+                    <label for="client_id">Client ID</label>
+                    <input type="text" 
+                           id="client_id" 
+                           name="client_id" 
+                           placeholder="Optional Client ID">
+                </div>
+            </div>
+
+            <div class="format-section">
+                <h3>Output Format</h3>
+                <div class="form-group">
+                    <select id="format" name="format">
+                        <option value="xlsx">Excel (XLSX)</option>
+                        <option value="csv">CSV</option>
+                        <option value="pdf">PDF</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    {% if error_message %}
+        <div class="message error-message">
+            ⚠️ {{ error_message }}
+        </div>
+    {% endif %}
+</div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Add any necessary JavaScript here
+        const dateInputs = document.querySelectorAll('input[type="date"]');
+        dateInputs.forEach(input => {
+            input.addEventListener('focus', function() {
+                this.showPicker();
+            });
+        });
+    });
+</script>
+{% endblock content %}
