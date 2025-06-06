@@ -1,0 +1,21 @@
+<html>
+<head>
+    <title>Bulk Update Provider Segregation</title>
+</head>
+<body>
+    <h1>Bulk Update Provider Segregation Using CSV</h1>
+    <form method="post" enctype="multipart/form-data">
+        {% csrf_token %}
+        {{ form.as_p }}
+        <button type="submit">Upload and Update</button>
+    </form>
+
+    {% if messages %}
+        <ul>
+            {% for message in messages %}
+                <li>{{ message }}</li>
+            {% endfor %}
+        </ul>
+    {% endif %}
+</body>
+</html>
