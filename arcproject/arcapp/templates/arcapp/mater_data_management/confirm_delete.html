@@ -1,0 +1,15 @@
+{% extends "arcapp/base.html" %}
+
+{% block title %}Confirm Delete{% endblock %}
+
+{% block content %}
+<div class="master-data-container" style="width: 90%; max-width: 500px;">
+    <h2>⚠️ Delete {{ model_type|title }}</h2>
+    <p>Are you sure you want to delete "{{ instance.name }}"?</p>
+    <form method="POST">
+        {% csrf_token %}
+        <button type="submit" class="btn btn-delete">🗑️ Confirm Delete</button>
+        <a href="{% url 'master_data_list' %}" class="btn btn-secondary">Cancel</a>
+    </form>
+</div>
+{% endblock %}

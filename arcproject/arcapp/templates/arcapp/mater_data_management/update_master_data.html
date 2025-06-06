@@ -1,0 +1,15 @@
+{% extends "arcapp/base.html" %}
+
+{% block title %}Update Entry{% endblock %}
+
+{% block content %}
+<div class="master-data-container" style="width: 90%; max-width: 500px;">
+    <h2>📝 Update {{ model_type|title }}</h2>
+    <form method="POST">
+        {% csrf_token %}
+        {{ form.as_p }}
+        <button type="submit" class="submit-button">💾 Save Changes</button>
+        <a href="{% url 'master_data_list' %}" class="btn btn-secondary">Cancel</a>
+    </form>
+</div>
+{% endblock %}

@@ -1,0 +1,265 @@
+{% extends "arcapp/base.html" %}
+
+{% block title %}Manage Master Data{% endblock %}
+
+{% block content %}
+<style>
+    /* Reuse styles from master_data_form.html */
+    .existing-data-container {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+        gap: 20px;
+        max-width: 1200px;
+        margin: 30px auto;
+        padding: 0 20px;
+    }
+
+    .data-section {
+        background: #fff;
+        padding: 20px;
+        border: 1px solid #0c5435;
+        border-radius: 6px;
+        box-shadow: 0 4px 8px rgba(12, 84, 53, 0.1);
+    }
+
+    .search-filter {
+        margin-bottom: 1rem;
+        padding: 0.5rem;
+        width: 100%;
+        border-radius: 25px;
+        border: 1px solid #0c5435;
+    }
+
+    .data-list li {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 0.8rem;
+        margin: 0.5rem 0;
+        background: #f8f8f8;
+        border-radius: 4px;
+    }
+
+    .button-group {
+        display: flex;
+        gap: 0.5rem;
+    }
+
+    .btn {
+        padding: 0.3rem 0.8rem;
+        border: none;
+        border-radius: 4px;
+        cursor: pointer;
+    }
+
+    .btn-update {
+        background: #007bff;
+        color: white;
+    }
+
+    .btn-delete {
+        background: #dc3545;
+        color: white;
+    }
+</style>
+
+<div class="existing-data-container">
+    <!-- Box Types -->
+    <div class="data-section">
+        <h3>📦 Box Types</h3>
+        <ul class="data-list">
+            {% for bt in box_types %}
+            <li>
+                {{ bt.name }}
+                <div class="button-group">
+                    <a href="{% url 'update_master_data' 'box_type' bt.id %}" class="btn btn-update">Update</a>
+                    <a href="{% url 'delete_master_data' 'box_type' bt.id %}" class="btn btn-delete">Delete</a>
+                </div>
+            </li>
+            {% endfor %}
+        </ul>
+    </div>
+
+    <!-- Box Locations -->
+    <div class="data-section">
+        <h3>📍 Box Locations</h3>
+        <ul class="data-list">
+            {% for bl in box_locations %}
+            <li>
+                {{ bl.name }}
+                <div class="button-group">
+                    <a href="{% url 'update_master_data' 'box_location' bl.id %}" class="btn btn-update">Update</a>
+                    <a href="{% url 'delete_master_data' 'box_location' bl.id %}" class="btn btn-delete">Delete</a>
+                </div>
+            </li>
+            {% endfor %}
+        </ul>
+    </div>
+
+
+
+
+        <div class="data-section">
+        <h3>📍 Claim Status</h3>
+        <ul class="data-list">
+            {% for cs in claim_status %}
+            <li>
+                {{ cs.name }}
+                <div class="button-group">
+                    <a href="{% url 'update_master_data' 'claim_status' cs.id %}" class="btn btn-update">Update</a>
+                    <a href="{% url 'delete_master_data' 'claim_status' cs.id %}" class="btn btn-delete">Delete</a>
+                </div>
+            </li>
+            {% endfor %}
+        </ul>
+    </div>
+
+
+
+
+
+
+
+
+
+     <div class="data-section">
+        <h3>桃 Audit User</h3>
+        <ul class="data-list">
+            {% for ab in audit_by %}
+            <li>
+                {{ ab.name }}
+                <div class="button-group">
+                    <a href="{% url 'update_master_data' 'audit_by' ab.id %}" class="btn btn-update">Update</a>
+                    <a href="{% url 'delete_master_data' 'audit_by' ab.id %}" class="btn btn-delete">Delete</a> {# CORRECTED MODEL TYPE #}
+                    
+                </div>
+            </li>
+            {% endfor %}
+        </ul>
+    </div>
+
+
+
+
+
+    
+     <div class="data-section">
+        <h3>桃 Audit User</h3>
+        <ul class="data-list">
+            {% for ab in audit_by %}
+            <li>
+                {{ ab.name }}
+                <div class="button-group">
+                    <a href="{% url 'update_master_data' 'audit_by' ab.id %}" class="btn btn-update">Update</a>
+                    <a href="{% url 'delete_master_data' 'audit_by' ab.id %}" class="btn btn-delete">Delete</a> {# CORRECTED MODEL TYPE #}
+                    
+                </div>
+            </li>
+            {% endfor %}
+        </ul>
+    </div>
+
+
+
+         <div class="data-section">
+        <h3>桃桃Fdi桃桃桃 return By User</h3>
+        <ul class="data-list">
+            {% for rbu in return_by_usr %}
+            <li>
+                {{ rbu.name }}
+                <div class="button-group">
+                    <a href="{% url 'update_master_data' 'return_by_usr' rbu.id %}" class="btn btn-update">Update</a>
+                    <a href="{% url 'delete_master_data' 'return_by_usr' rbu.id %}" class="btn btn-delete">Delete</a> 
+                    
+                </div>
+            </li>
+            {% endfor %}
+        </ul>
+    </div>
+
+
+
+
+             <div class="data-section">
+        <h3>桃桃Fdi桃桃桃 Segregation By User</h3>
+        <ul class="data-list">
+            {% for sbu in segregation_by_usr %}
+            <li>
+                {{ sbu.name }}
+                <div class="button-group">
+                    <a href="{% url 'update_master_data' 'segregation_by_usr' sbu.id %}" class="btn btn-update">Update</a>
+                    <a href="{% url 'delete_master_data' 'segregation_by_usr' sbu.id %}" class="btn btn-delete">Delete</a> 
+                    
+                </div>
+            </li>
+            {% endfor %}
+        </ul>
+    </div>
+
+
+              <div class="data-section">
+        <h3>桃桃Fdi桃桃桃 Request By User</h3>
+        <ul class="data-list">
+            {% for rbu in request_by_usr %}
+            <li>
+                {{ rbu.name }}
+                <div class="button-group">
+                    <a href="{% url 'update_master_data' 'request_by_usr' rbu.id %}" class="btn btn-update">Update</a> {# CORRECTED #}
+                    <a href="{% url 'delete_master_data' 'request_by_usr' rbu.id %}" class="btn btn-delete">Delete</a> {# CORRECTED #}
+                    
+                </div>
+            </li>
+            {% endfor %}
+        </ul>
+    </div>
+    <!-- box status -->
+        {% comment %} <div class="data-section">
+        <h3>📍$$ Box Status</h3>
+        <ul class="data-list">
+            {% for bs in box_status %}
+            <li>
+                {{ bs.name }}
+                <div class="button-group">
+                    <a href="{% url 'update_master_data' 'box_status' bs.id %}" class="btn btn-update">Update</a>
+                    <a href="{% url 'delete_master_data' 'box_status' bs.id %}" class="btn btn-delete">Delete</a>
+                </div>
+            </li>
+            {% endfor %}
+        </ul>
+    </div>
+     {% endcomment %}
+
+
+
+    
+    <!-- Insurance Companies with Search -->
+    <div class="data-section">
+        <h3>🏢 Insurance Companies</h3>
+        <input type="text" class="search-filter" placeholder="Search insurance companies..." id="insuranceSearch">
+        <ul class="data-list" id="insuranceList">
+            {% for ic in insurance_companies %}
+            <li>
+                {{ ic.name }}
+                <div class="button-group">
+                    <a href="{% url 'update_master_data' 'insurance_company' ic.id %}" class="btn btn-update">Update</a>
+                    <a href="{% url 'delete_master_data' 'insurance_company' ic.id %}" class="btn btn-delete">Delete</a>
+                </div>
+            </li>
+            {% endfor %}
+        </ul>
+    </div>
+</div>
+
+<script>
+    // Search functionality for insurance companies
+    document.getElementById('insuranceSearch').addEventListener('input', function() {
+        const query = this.value.toLowerCase();
+        const items = document.querySelectorAll('#insuranceList li');
+        
+        items.forEach(item => {
+            const text = item.textContent.toLowerCase();
+            item.style.display = text.includes(query) ? 'flex' : 'none';
+        });
+    });
+</script>
+{% endblock %}
