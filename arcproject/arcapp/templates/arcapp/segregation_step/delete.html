@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Delete Segregation Step</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+</head>
+<body>
+    <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
+        <div class="container">
+            <a class="navbar-brand" href="{% url 'segregation_step_list' %}">
+                <i class="fas fa-file-medical"></i> Segregation Step Management
+            </a>
+            <div class="navbar-nav ms-auto">
+                <a class="nav-link" href="{% url 'segregation_step_list' %}">
+                    <i class="fas fa-list"></i> List
+                </a>
+                <a class="nav-link" href="{% url 'segregation_step_create' %}">
+                    <i class="fas fa-plus"></i> Create
+                </a>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container mt-4">
+        {% if messages %}
+            {% for message in messages %}
+                <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+                    {{ message }}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                </div>
+            {% endfor %}
+        {% endif %}
+
+        <div class="row justify-content-center">
+            <div class="col-lg-8">
+                <div class="card border-danger">
+                    <div class="card-header bg-danger text-white">
+                        <h4 class="mb-0">
+                            <i class="fas fa-exclamation-triangle"></i> Confirm Deletion
+                        </h4>
+                    </div>
+                    <div class="card-body">
+                        <div class="alert alert-warning">
+                            <i class="fas fa-warning"></i>
+                            <strong>Warning:</strong> This action cannot be undone. All data associated with this segregation step will be permanently deleted.
+                        </div>
+        
+                        <h5>Are you sure you want to delete this segregation step?</h5>
+        
+                        <div class="bg-light p-3 rounded mt-3">
+                            <div class="row">
+                                <div class="col-sm-4"><strong>Claim Code:</strong></div>
+                                <div class="col-sm-8">{{ segregation_step.claim_code }}</div>
+                            </div>
+                            <div class="row">
+                                <div class="col-sm-4"><strong>Member Name:</strong></div>
+                                <div class="col-sm-8">{{ segregation_step.member_name }}</div>
+                            </div>
+                            <div class="row">
+                                <div class="col-sm-4"><strong>Insurance Company:</strong></div>
+                                <div class="col-sm-8">{{ segregation_step.insurance_company }}</div>
+                            </div>
+                            <div class="row">
+                                <div class="col-sm-4"><strong>Service Date:</strong></div>
+                                <div class="col-sm-8">{{ segregation_step.service_date|date:"F d, Y" }}</div>
+                            </div>
+                            <div class="row">
+                                <div class="col-sm-4"><strong>Approved Amount:</strong></div>
+                                <div class="col-sm-8">${{ segregation_step.approved_amount|floatformat:2 }}</div>
+                            </div>
+                        </div>
+        
+                        <form method="post" class="mt-4">
+                            {% csrf_token %}
+                            <div class="d-flex justify-content-between">
+                                <a href="{% url 'segregation_step_detail' segregation_step.pk %}" class="btn btn-secondary">
+                                    <i class="fas fa-arrow-left"></i> Cancel
+                                </a>
+                                <button type="submit" class="btn btn-danger">
+                                    <i class="fas fa-trash"></i> Yes, Delete Permanently
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
