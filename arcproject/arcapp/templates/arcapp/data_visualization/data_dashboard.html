@@ -1,0 +1,517 @@
+{% extends "arcapp/base.html" %}
+{% block content %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Archiving System Dashboard</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Comic+Relief:wght@400;700&family=Montserrat:ital,wght@0,100..900;1,100..900&display=swap" rel="stylesheet">
+    <style>
+        body {
+            {% comment %} background-color: #1e1e2f; {% endcomment %}
+            color:rgb(52, 49, 49);
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        .dashboard-container {
+            padding: 20px;
+            max-width: 950px;
+            margin: 0 auto;
+        }
+        .dashboard-title {
+            text-align: center;
+            margin-bottom: 30px;
+            color:rgb(21, 22, 20);
+        }
+        .chart-container {
+            background-color: #27293d;
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 25px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+        }
+        .chart-title {
+            font-size: 18px;
+            margin-bottom: 15px;
+            color: #ffffff;
+        }
+        .charts-row {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 20px;
+            justify-content: space-between;
+        }
+        .chart-half {
+            flex: 0 0 calc(50% - 10px);
+        }
+        .chart-full {
+            flex: 0 0 100%;
+        }
+        canvas {
+            width: 100% !important;
+            height: auto !important;
+            max-height: 350px;
+        }
+        @media (max-width: 768px) {
+            .chart-half {
+                flex: 0 0 100%;
+            }
+        }
+
+
+{% comment %} the user part  {% endcomment %}
+
+.welcome-banner {
+    background-color: #27293d;
+    color: white;
+    padding: 20px;
+    text-align: center;
+    font-size: 24px;
+    font-weight: bold;
+    border-radius: 10px;
+    margin-bottom: 25px;
+    animation: slideDown 1.2s ease-out, fadeOut 1s ease-in 4s forwards;
+}
+
+@keyframes slideDown {
+    from {
+        opacity: 0;
+        transform: translateY(-40px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes fadeOut {
+    to {
+        opacity: 0;
+        transform: translateY(-20px);
+        display: none;
+    }
+}
+
+#username{
+    font-family: "Montserrat", sans-serif;
+    font-weight: 600;
+    color: rgb(153, 160, 152);
+
+}
+
+
+    </style>
+</head>
+<body>
+
+
+    <div id="welcome-message" style="display:none;" class="welcome-banner">
+        <h2>Welcome <span id="username">{{ user_name }} </span>to Alahly Medical!</h2>
+    </div>
+
+
+    <div class="dashboard-container">
+        <h1 class="dashboard-title">Archiving DMS Analytics Dashboard</h1>
+        
+        <div class="charts-row">
+            <div class="chart-container chart-half">
+                <h2 class="chart-title">Top 10 Deductions</h2>
+                <canvas id="topDeductionsChart"></canvas>
+            </div>
+            
+            <div class="chart-container chart-half">
+                <h2 class="chart-title">Segregation Distribution</h2>
+                <canvas id="segregationPieChart"></canvas>
+            </div>
+        </div>
+        
+        <div class="chart-container chart-full">
+            <h2 class="chart-title">Top 20 Boxes by Claim Count</h2>
+            <canvas id="topBoxesChart"></canvas>
+        </div>
+        
+        <div class="charts-row">
+            <div class="chart-container chart-half">
+                <h2 class="chart-title">Total Box Count</h2>
+                <canvas id="boxCountChart"></canvas>
+            </div>
+            
+            <div class="chart-container chart-half">
+                <h2 class="chart-title">Boxes by Type</h2>
+                <canvas id="boxTypeChart"></canvas>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        // Set global Chart.js options for all charts
+        Chart.defaults.color = '#ffffff';
+        Chart.defaults.borderColor = '#2b2d42';
+        
+        // Use a consistent color palette for all charts
+        const colorPalette = [
+            'rgba(75, 192, 192, 0.7)',
+            'rgba(255, 99, 132, 0.7)',
+            'rgba(54, 162, 235, 0.7)',
+            'rgba(255, 206, 86, 0.7)',
+            'rgba(153, 102, 255, 0.7)',
+            'rgba(255, 159, 64, 0.7)',
+            'rgba(199, 199, 199, 0.7)',
+            'rgba(83, 102, 255, 0.7)',
+            'rgba(40, 180, 99, 0.7)',
+            'rgba(205, 97, 85, 0.7)'
+        ];
+        
+        const borderPalette = [
+            'rgba(75, 192, 192, 1)',
+            'rgba(255, 99, 132, 1)',
+            'rgba(54, 162, 235, 1)',
+            'rgba(255, 206, 86, 1)',
+            'rgba(153, 102, 255, 1)',
+            'rgba(255, 159, 64, 1)',
+            'rgba(199, 199, 199, 1)',
+            'rgba(83, 102, 255, 1)',
+            'rgba(40, 180, 99, 1)',
+            'rgba(205, 97, 85, 1)'
+        ];
+        
+        // 1. Top Deductions Chart
+        const topDeductionsCtx = document.getElementById('topDeductionsChart').getContext('2d');
+        const topDeductionsChart = new Chart(topDeductionsCtx, {
+            type: 'bar',
+            data: {
+                labels: {{ claim_codes|safe }},
+                datasets: [{
+                    label: 'Deducted Amount',
+                    data: {{ deducted_amounts|safe }},
+                    backgroundColor: colorPalette[0],
+                    borderColor: borderPalette[0],
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                indexAxis: 'y',
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        display: true,
+                        position: 'top',
+                    },
+                    title: {
+                        display: false
+                    }
+                },
+                scales: {
+                    x: {
+                        beginAtZero: true,
+                        grid: {
+                            color: 'rgba(255, 255, 255, 0.1)'
+                        }
+                    },
+                    y: {
+                        grid: {
+                            color: 'rgba(255, 255, 255, 0.1)'
+                        }
+                    }
+                }
+            }
+        });
+        
+        // 2. Segregation Distribution (Provider vs. Reimbursement) Pie Chart
+        const segregationPieCtx = document.getElementById('segregationPieChart').getContext('2d');
+        const segregationPieChart = new Chart(segregationPieCtx, {
+            type: 'pie',
+            data: {
+                labels: ['Provider Segregation', 'Reimbursement Segregation'],
+                datasets: [{
+                    data: {{ segregation_counts|safe }},
+                    backgroundColor: [colorPalette[1], colorPalette[2]],
+                    borderColor: [borderPalette[1], borderPalette[2]],
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        position: 'right'
+                    }
+                }
+            }
+        });
+        
+        // 3. Top 20 Boxes by Claim Count
+        const topBoxesCtx = document.getElementById('topBoxesChart').getContext('2d');
+        const topBoxesChart = new Chart(topBoxesCtx, {
+            type: 'bar',
+            data: {
+                labels: {{ top_boxes|safe }},
+                datasets: [{
+                    label: 'Number of Claims',
+                    data: {{ top_boxes_counts|safe }},
+                    backgroundColor: colorPalette[3],
+                    borderColor: borderPalette[3],
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                indexAxis: 'y',
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        display: true
+                    }
+                },
+                scales: {
+                    x: {
+                        beginAtZero: true,
+                        grid: {
+                            color: 'rgba(255, 255, 255, 0.1)'
+                        }
+                    },
+                    y: {
+                        grid: {
+                            color: 'rgba(255, 255, 255, 0.1)'
+                        }
+                    }
+                }
+            }
+        });
+        
+        // 4. Total Box Count
+        const boxCountCtx = document.getElementById('boxCountChart').getContext('2d');
+        const boxCountChart = new Chart(boxCountCtx, {
+            type: 'line',
+            data: {
+                labels: {{ box_creation_dates|safe }},
+                datasets: [{
+                    label: 'Number of Boxes Created',
+                    data: {{ cumulative_box_counts|safe }},
+                    fill: true,
+                    backgroundColor: 'rgba(75, 192, 192, 0.2)',
+                    borderColor: borderPalette[0],
+                    tension: 0.1
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        display: true
+                    }
+                },
+                scales: {
+                    x: {
+                        grid: {
+                            color: 'rgba(255, 255, 255, 0.1)'
+                        }
+                    },
+                    y: {
+                        beginAtZero: true,
+                        grid: {
+                            color: 'rgba(255, 255, 255, 0.1)'
+                        }
+                    }
+                }
+            }
+        });
+        
+        // 5. Boxes by Type
+        const boxTypeCtx = document.getElementById('boxTypeChart').getContext('2d');
+        const boxTypeChart = new Chart(boxTypeCtx, {
+            type: 'doughnut',
+            data: {
+                labels: {{ box_types|safe }},
+                datasets: [{
+                    data: {{ box_type_counts|safe }},
+                    backgroundColor: colorPalette,
+                    borderColor: borderPalette,
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        position: 'right'
+                    }
+                }
+            }
+        });
+
+        window.addEventListener("DOMContentLoaded", () => {
+            const welcome = document.getElementById("welcome-message");
+            welcome.style.display = "block";
+        });
+    </script>
+</body>
+</html>
+{% endblock content %}
+
+
+
+
+
+
+{% comment "" %}
+ the function 
+ 
+ 
+ def home_dashboard(request):
+    # 1. Top Deductions Chart
+    top_deductions = (
+        ProviderSegregation.objects.order_by('-DeductedAmount')
+        .values('ClaimCode', 'DeductedAmount')[:10]
+    )
+    claim_codes = [item['ClaimCode'] for item in top_deductions]
+    deducted_amounts = [float(item['DeductedAmount']) if item['DeductedAmount'] is not None else 0.0 for item in top_deductions]
+    
+    # 2. Segregation Distribution
+    provider_count = ProviderSegregation.objects.count()
+    reimbursement_count = ReimbursementSegregation.objects.count()
+    segregation_counts = [provider_count, reimbursement_count]
+    
+    # 3. Top 20 Boxes by Claim Count
+    top_boxes_provider = ProviderSegregation.objects.values('box_number__box_number').annotate(
+        count=Count('ClaimCode')
+    )
+    top_boxes_reimbursement = ReimbursementSegregation.objects.values('box_number__box_number').annotate(
+        count=Count('Claim_Code')
+    )
+    
+    # Combine and sum counts from both models
+    box_claim_counts = {}
+    for item in top_boxes_provider:
+        box_num = item['box_number__box_number']
+        box_claim_counts[box_num] = box_claim_counts.get(box_num, 0) + item['count']
+    
+    for item in top_boxes_reimbursement:
+        box_num = item['box_number__box_number']
+        box_claim_counts[box_num] = box_claim_counts.get(box_num, 0) + item['count']
+    
+    # Sort by count (descending) and take top 20
+    top_20_boxes = sorted(box_claim_counts.items(), key=lambda x: x[1], reverse=True)[:20]
+    top_boxes = [item[0] for item in top_20_boxes]
+    top_boxes_counts = [item[1] for item in top_20_boxes]
+    
+    # 4. Box Creation Trend
+    # Get boxes with their creation dates
+    boxes = Box.objects.all().order_by('data_entrance_date')
+    
+    if boxes.exists():
+        # Group boxes by month
+        first_date = boxes.first().data_entrance_date.date().replace(day=1)
+        last_date = timezone.now().date().replace(day=1)
+        
+        # Generate all months between first and last date
+        months = []
+        current_date = first_date
+        while current_date <= last_date:
+            months.append(current_date.strftime('%b %Y'))
+            # Move to next month
+            if current_date.month == 12:
+                current_date = current_date.replace(year=current_date.year + 1, month=1)
+            else:
+                current_date = current_date.replace(month=current_date.month + 1)
+        
+        # Count boxes created per month
+        box_counts_by_month = {}
+        for box in boxes:
+            month_str = box.data_entrance_date.strftime('%b %Y')
+            box_counts_by_month[month_str] = box_counts_by_month.get(month_str, 0) + 1
+        
+        # Create cumulative counts
+        cumulative_count = 0
+        cumulative_counts = []
+        
+        for month in months:
+            cumulative_count += box_counts_by_month.get(month, 0)
+            cumulative_counts.append(cumulative_count)
+        
+        box_creation_dates = months
+        cumulative_box_counts = cumulative_counts
+    else:
+        box_creation_dates = []
+        cumulative_box_counts = []
+    
+    # 5. Boxes by Type
+    box_types_data = Box.objects.values('box_type').annotate(count=Count('id'))
+    box_types = [item['box_type'] for item in box_types_data]
+    box_type_counts = [item['count'] for item in box_types_data]
+    
+    # NEW VISUALIZATIONS
+    
+    # 1. Top Clients by Claims Count
+    top_clients = ProviderSegregation.objects.values('Client_name').annotate(
+        count=Count('ClaimCode')
+    ).order_by('-count')[:10]
+    client_names = [item['Client_name'] for item in top_clients]
+    client_claim_counts = [item['count'] for item in top_clients]
+    
+    # 2. Top Providers by Claims Count
+    top_providers = ProviderSegregation.objects.values('Provider_name').annotate(
+        count=Count('ClaimCode')
+    ).order_by('-count')[:10]
+    provider_names = [item['Provider_name'] for item in top_providers]
+    provider_claim_counts = [item['count'] for item in top_providers]
+    
+    # 3. Claims by Year (Receive Date)
+    claims_by_year = ProviderSegregation.objects.annotate(
+        year=ExtractYear('Receive_date')
+    ).values('year').annotate(
+        count=Count('ClaimCode')
+    ).order_by('year')
+    
+    claim_years = [item['year'] for item in claims_by_year]
+    yearly_claim_counts = [item['count'] for item in claims_by_year]
+    
+    # 4. Claims by Segregation User
+    claims_by_segregator = ProviderSegregation.objects.values('Segregation_by').annotate(
+        count=Count('ClaimCode')
+    ).order_by('-count')
+    
+    segregation_users = [item['Segregation_by'] for item in claims_by_segregator]
+    segregation_counts_by_user = [item['count'] for item in claims_by_segregator]
+    
+    # 5. Audits by User
+    audits_by_user = ProviderSegregation.objects.values('Audit_by').annotate(
+        count=Count('ClaimCode')
+    ).order_by('-count')
+    
+    audit_users = [item['Audit_by'] for item in audits_by_user]
+    audit_counts_by_user = [item['count'] for item in audits_by_user]
+    
+    return render(request, 'arcapp/data_visualization/data_dashboard.html', {
+        'claim_codes': json.dumps(claim_codes),
+        'deducted_amounts': json.dumps(deducted_amounts),
+        'segregation_counts': json.dumps(segregation_counts),
+        'top_boxes': json.dumps(top_boxes),
+        'top_boxes_counts': json.dumps(top_boxes_counts),
+        'box_creation_dates': json.dumps(box_creation_dates),
+        'cumulative_box_counts': json.dumps(cumulative_box_counts),
+        'box_types': json.dumps(box_types),
+        'box_type_counts': json.dumps(box_type_counts),
+        # New data for additional visualizations
+        'client_names': json.dumps(client_names),
+        'client_claim_counts': json.dumps(client_claim_counts),
+        'provider_names': json.dumps(provider_names),
+        'provider_claim_counts': json.dumps(provider_claim_counts),
+        'claim_years': json.dumps(claim_years),
+        'yearly_claim_counts': json.dumps(yearly_claim_counts),
+        'segregation_users': json.dumps(segregation_users),
+        'segregation_counts_by_user': json.dumps(segregation_counts_by_user),
+        'audit_users': json.dumps(audit_users),
+        'audit_counts_by_user': json.dumps(audit_counts_by_user),
+
+
+
+{% endcomment %}

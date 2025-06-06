@@ -1,0 +1,528 @@
+{% extends "arcapp/base.html" %}
+{% block content %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Archiving System Dashboard</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        body {
+            {% comment %} background-color: #1e1e2f; {% endcomment %}
+            color:rgb(52, 49, 49);
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        .dashboard-container {
+            padding: 20px;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        .dashboard-title {
+            text-align: center;
+            margin-bottom: 30px;
+            color:rgb(21, 22, 20);
+        }
+        .chart-container {
+            background-color: #27293d;
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 25px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+        }
+        .chart-title {
+            font-size: 18px;
+            margin-bottom: 15px;
+            color: #ffffff;
+        }
+        .charts-row {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 20px;
+            justify-content: space-between;
+        }
+        .chart-third {
+            flex: 0 0 calc(33.33% - 14px);
+        }
+        .chart-half {
+            flex: 0 0 calc(50% - 10px);
+        }
+        .chart-full {
+            flex: 0 0 100%;
+        }
+        canvas {
+            width: 100% !important;
+            height: auto !important;
+            max-height: 350px;
+        }
+        @media (max-width: 1100px) {
+            .chart-third {
+                flex: 0 0 calc(50% - 10px);
+            }
+        }
+        @media (max-width: 768px) {
+            .chart-half, .chart-third {
+                flex: 0 0 100%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="dashboard-container">
+        <h1 class="dashboard-title">Archiving DMS Analytics Dashboard</h1>
+        
+        <!-- First row: Original charts -->
+        <div class="charts-row">
+            <div class="chart-container chart-third">
+                <h2 class="chart-title">Top 10 Deductions</h2>
+                <canvas id="topDeductionsChart"></canvas>
+            </div>
+            
+            <div class="chart-container chart-third">
+                <h2 class="chart-title">Segregation Distribution</h2>
+                <canvas id="segregationPieChart"></canvas>
+            </div>
+            
+            <div class="chart-container chart-third">
+                <h2 class="chart-title">Boxes by Type</h2>
+                <canvas id="boxTypeChart"></canvas>
+            </div>
+        </div>
+        
+        <!-- Second row: New charts -->
+        <div class="charts-row">
+            <div class="chart-container chart-third">
+                <h2 class="chart-title">Top 10 Clients by Claims</h2>
+                <canvas id="topClientsChart"></canvas>
+            </div>
+            
+            <div class="chart-container chart-third">
+                <h2 class="chart-title">Top 10 Providers by Claims</h2>
+                <canvas id="topProvidersChart"></canvas>
+            </div>
+            
+            <div class="chart-container chart-third">
+                <h2 class="chart-title">Claims by Year</h2>
+                <canvas id="claimsByYearChart"></canvas>
+            </div>
+        </div>
+        
+        <!-- Third row -->
+        <div class="charts-row">
+            <div class="chart-container chart-third">
+                <h2 class="chart-title">Claims by Segregation User</h2>
+                <canvas id="segregationByUserChart"></canvas>
+            </div>
+            
+            <div class="chart-container chart-third">
+                <h2 class="chart-title">Audits by User</h2>
+                <canvas id="auditsByUserChart"></canvas>
+            </div>
+            
+            <div class="chart-container chart-third">
+                <h2 class="chart-title">Total Box Count</h2>
+                <canvas id="boxCountChart"></canvas>
+            </div>
+        </div>
+        
+        <!-- Fourth row: Full width chart -->
+        <div class="chart-container chart-full">
+            <h2 class="chart-title">Top 20 Boxes by Claim Count</h2>
+            <canvas id="topBoxesChart"></canvas>
+        </div>
+    </div>
+    
+    <script>
+        // Set global Chart.js options for all charts
+        Chart.defaults.color = '#ffffff';
+        Chart.defaults.borderColor = '#2b2d42';
+        
+        // Use a consistent color palette for all charts
+        const colorPalette = [
+            'rgba(75, 192, 192, 0.7)',
+            'rgba(255, 99, 132, 0.7)',
+            'rgba(54, 162, 235, 0.7)',
+            'rgba(255, 206, 86, 0.7)',
+            'rgba(153, 102, 255, 0.7)',
+            'rgba(255, 159, 64, 0.7)',
+            'rgba(199, 199, 199, 0.7)',
+            'rgba(83, 102, 255, 0.7)',
+            'rgba(40, 180, 99, 0.7)',
+            'rgba(205, 97, 85, 0.7)'
+        ];
+        
+        const borderPalette = [
+            'rgba(75, 192, 192, 1)',
+            'rgba(255, 99, 132, 1)',
+            'rgba(54, 162, 235, 1)',
+            'rgba(255, 206, 86, 1)',
+            'rgba(153, 102, 255, 1)',
+            'rgba(255, 159, 64, 1)',
+            'rgba(199, 199, 199, 1)',
+            'rgba(83, 102, 255, 1)',
+            'rgba(40, 180, 99, 1)',
+            'rgba(205, 97, 85, 1)'
+        ];
+        
+        // 1. Top Deductions Chart
+        const topDeductionsCtx = document.getElementById('topDeductionsChart').getContext('2d');
+        const topDeductionsChart = new Chart(topDeductionsCtx, {
+            type: 'bar',
+            data: {
+                labels: {{ claim_codes|safe }},
+                datasets: [{
+                    label: 'Deducted Amount',
+                    data: {{ deducted_amounts|safe }},
+                    backgroundColor: colorPalette[0],
+                    borderColor: borderPalette[0],
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                indexAxis: 'y',
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        display: true,
+                        position: 'top',
+                    },
+                    title: {
+                        display: false
+                    }
+                },
+                scales: {
+                    x: {
+                        beginAtZero: true,
+                        grid: {
+                            color: 'rgba(255, 255, 255, 0.1)'
+                        }
+                    },
+                    y: {
+                        grid: {
+                            color: 'rgba(255, 255, 255, 0.1)'
+                        }
+                    }
+                }
+            }
+        });
+        
+        // 2. Segregation Distribution (Provider vs. Reimbursement) Pie Chart
+        const segregationPieCtx = document.getElementById('segregationPieChart').getContext('2d');
+        const segregationPieChart = new Chart(segregationPieCtx, {
+            type: 'pie',
+            data: {
+                labels: ['Provider Segregation', 'Reimbursement Segregation'],
+                datasets: [{
+                    data: {{ segregation_counts|safe }},
+                    backgroundColor: [colorPalette[1], colorPalette[2]],
+                    borderColor: [borderPalette[1], borderPalette[2]],
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        position: 'right'
+                    }
+                }
+            }
+        });
+        
+        // 3. Top 20 Boxes by Claim Count
+        const topBoxesCtx = document.getElementById('topBoxesChart').getContext('2d');
+        const topBoxesChart = new Chart(topBoxesCtx, {
+            type: 'bar',
+            data: {
+                labels: {{ top_boxes|safe }},
+                datasets: [{
+                    label: 'Number of Claims',
+                    data: {{ top_boxes_counts|safe }},
+                    backgroundColor: colorPalette[3],
+                    borderColor: borderPalette[3],
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                indexAxis: 'y',
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        display: true
+                    }
+                },
+                scales: {
+                    x: {
+                        beginAtZero: true,
+                        grid: {
+                            color: 'rgba(255, 255, 255, 0.1)'
+                        }
+                    },
+                    y: {
+                        grid: {
+                            color: 'rgba(255, 255, 255, 0.1)'
+                        }
+                    }
+                }
+            }
+        });
+        
+        // 4. Total Box Count
+        const boxCountCtx = document.getElementById('boxCountChart').getContext('2d');
+        const boxCountChart = new Chart(boxCountCtx, {
+            type: 'line',
+            data: {
+                labels: {{ box_creation_dates|safe }},
+                datasets: [{
+                    label: 'Number of Boxes Created',
+                    data: {{ cumulative_box_counts|safe }},
+                    fill: true,
+                    backgroundColor: 'rgba(75, 192, 192, 0.2)',
+                    borderColor: borderPalette[0],
+                    tension: 0.1
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        display: true
+                    }
+                },
+                scales: {
+                    x: {
+                        grid: {
+                            color: 'rgba(255, 255, 255, 0.1)'
+                        }
+                    },
+                    y: {
+                        beginAtZero: true,
+                        grid: {
+                            color: 'rgba(255, 255, 255, 0.1)'
+                        }
+                    }
+                }
+            }
+        });
+        
+        // 5. Boxes by Type
+        const boxTypeCtx = document.getElementById('boxTypeChart').getContext('2d');
+        const boxTypeChart = new Chart(boxTypeCtx, {
+            type: 'doughnut',
+            data: {
+                labels: {{ box_types|safe }},
+                datasets: [{
+                    data: {{ box_type_counts|safe }},
+                    backgroundColor: colorPalette,
+                    borderColor: borderPalette,
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        position: 'right'
+                    }
+                }
+            }
+        });
+        
+        // NEW VISUALIZATIONS
+        
+        // 1. Top Clients by Claims
+        const topClientsCtx = document.getElementById('topClientsChart').getContext('2d');
+        const topClientsChart = new Chart(topClientsCtx, {
+            type: 'bar',
+            data: {
+                labels: {{ client_names|safe }},
+                datasets: [{
+                    label: 'Number of Claims',
+                    data: {{ client_claim_counts|safe }},
+                    backgroundColor: colorPalette[4],
+                    borderColor: borderPalette[4],
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                indexAxis: 'y',
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        display: true
+                    }
+                },
+                scales: {
+                    x: {
+                        beginAtZero: true,
+                        grid: {
+                            color: 'rgba(255, 255, 255, 0.1)'
+                        }
+                    },
+                    y: {
+                        grid: {
+                            color: 'rgba(255, 255, 255, 0.1)'
+                        }
+                    }
+                }
+            }
+        });
+        
+        // 2. Top Providers by Claims
+        const topProvidersCtx = document.getElementById('topProvidersChart').getContext('2d');
+        const topProvidersChart = new Chart(topProvidersCtx, {
+            type: 'bar',
+            data: {
+                labels: {{ provider_names|safe }},
+                datasets: [{
+                    label: 'Number of Claims',
+                    data: {{ provider_claim_counts|safe }},
+                    backgroundColor: colorPalette[5],
+                    borderColor: borderPalette[5],
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                indexAxis: 'y',
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        display: true
+                    }
+                },
+                scales: {
+                    x: {
+                        beginAtZero: true,
+                        grid: {
+                            color: 'rgba(255, 255, 255, 0.1)'
+                        }
+                    },
+                    y: {
+                        grid: {
+                            color: 'rgba(255, 255, 255, 0.1)'
+                        }
+                    }
+                }
+            }
+        });
+        
+        // 3. Claims by Year
+        const claimsByYearCtx = document.getElementById('claimsByYearChart').getContext('2d');
+        const claimsByYearChart = new Chart(claimsByYearCtx, {
+            type: 'bar',
+            data: {
+                labels: {{ claim_years|safe }},
+                datasets: [{
+                    label: 'Number of Claims',
+                    data: {{ yearly_claim_counts|safe }},
+                    backgroundColor: colorPalette[6],
+                    borderColor: borderPalette[6],
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        display: true
+                    }
+                },
+                scales: {
+                    x: {
+                        grid: {
+                            color: 'rgba(255, 255, 255, 0.1)'
+                        }
+                    },
+                    y: {
+                        beginAtZero: true,
+                        grid: {
+                            color: 'rgba(255, 255, 255, 0.1)'
+                        }
+                    }
+                }
+            }
+        });
+        
+        // 4. Claims by Segregation User
+        const segregationByUserCtx = document.getElementById('segregationByUserChart').getContext('2d');
+        const segregationByUserChart = new Chart(segregationByUserCtx, {
+            type: 'pie',
+            data: {
+                labels: {{ segregation_users|safe }},
+                datasets: [{
+                    data: {{ segregation_counts_by_user|safe }},
+                    backgroundColor: colorPalette,
+                    borderColor: borderPalette,
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        position: 'right',
+                        display: false
+                    },
+                    tooltip: {
+                        callbacks: {
+                            label: function(context) {
+                                const label = context.label || '';
+                                const value = context.raw || 0;
+                                const total = context.dataset.data.reduce((a, b) => a + b, 0);
+                                const percentage = Math.round((value / total) * 100);
+                                return `${label}: ${value} (${percentage}%)`;
+                            }
+                        }
+                    }
+                }
+            }
+        });
+        
+        // 5. Audits by User
+        const auditsByUserCtx = document.getElementById('auditsByUserChart').getContext('2d');
+        const auditsByUserChart = new Chart(auditsByUserCtx, {
+            type: 'pie',
+            data: {
+                labels: {{ audit_users|safe }},
+                datasets: [{
+                    data: {{ audit_counts_by_user|safe }},
+                    backgroundColor: colorPalette,
+                    borderColor: borderPalette,
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        position: 'right',
+                        display: false
+                    },
+                    tooltip: {
+                        callbacks: {
+                            label: function(context) {
+                                const label = context.label || '';
+                                const value = context.raw || 0;
+                                const total = context.dataset.data.reduce((a, b) => a + b, 0);
+                                const percentage = Math.round((value / total) * 100);
+                                return `${label}: ${value} (${percentage}%)`;
+                            }
+                        }
+                    }
+                }
+            }
+        });
+    </script>
+</body>
+</html>
+{% endblock content %}
