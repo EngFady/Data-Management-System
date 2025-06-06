@@ -1,0 +1,249 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Poppins', sans-serif;
+            margin: 0;
+            padding: 0;
+            background: linear-gradient(135deg, #4CAF50 0%, #45a049 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 400px;
+            padding: 40px;
+            background-color: rgba(255, 255, 255, 0.9);
+            border-radius: 12px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+            backdrop-filter: blur(10px);
+            transition: transform 0.3s ease;
+        }
+
+        .container:hover {
+            transform: translateY(-5px);
+        }
+
+        h1 {
+            text-align: center;
+            color: #2e7d32;
+            margin-bottom: 30px;
+            font-weight: 600;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+            position: relative; /* Added for character positioning */
+        }
+
+        .form-label {
+            display: block;
+            margin-bottom: 5px;
+            color: #1b5e20;
+            font-weight: 300;
+        }
+
+        .form-input {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #81c784;
+            border-radius: 6px;
+            font-size: 16px;
+            transition: border-color 0.3s ease;
+        }
+
+        .form-input:focus {
+            outline: none;
+            border-color: #4CAF50;
+            box-shadow: 0 0 0 2px rgba(76, 175, 80, 0.2);
+        }
+
+        .form-submit {
+            width: 100%;
+            padding: 12px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: 600;
+            transition: background-color 0.3s ease;
+        }
+
+        .form-submit:hover {
+            background-color: #45a049;
+        }
+
+        .form-text {
+            font-size: 14px;
+            color: #388e3c;
+            margin-top: 5px;
+        }
+
+        .text-danger {
+            color: #c62828;
+        }
+
+        .error-message {
+            background-color: #ffcdd2;
+            border: 1px solid #ef9a9a;
+            color: #c62828;
+            padding: 10px;
+            border-radius: 4px;
+            margin-bottom: 20px;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .container {
+            animation: fadeIn 0.5s ease-out;
+        }
+
+        /* Character Animation Styles */
+        .character-container {
+            position: absolute;
+            right: -60px;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 50px;
+            height: 50px;
+        }
+
+        .character {
+            width: 100%;
+            height: 100%;
+        }
+
+        .character-face {
+            fill: #4CAF50;
+            transition: fill 0.3s ease;
+        }
+
+        .character-eyes {
+            fill: white;
+        }
+
+        .character-pupils {
+            fill: #333;
+        }
+
+        .character-hand {
+            fill: #4CAF50;
+            transform-origin: bottom right;
+            transition: transform 0.3s ease;
+            transform: rotate(-90deg) translateX(15px);
+        }
+
+        .eyes-covered .character-hand {
+            transform: rotate(0) translateX(0);
+        }
+
+        .eyes-covered .character-face {
+            fill: #388e3c;
+        }
+
+        @media (max-width: 600px) {
+            .character-container {
+                right: 10px;
+                top: -60px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="container">
+        <h1>Login</h1>
+        {% comment %} <form action="/users/login/" method="post">
+            {% csrf_token %}
+            {% if form.non_field_errors %}
+                <div class="error-message">
+                    {% for error in form.non_field_errors %}
+                        {{ error }}
+                    {% endfor %}
+                </div>
+            {% endif %}
+            {% for field in form %}
+                <div class="form-group">
+                    <label for="{{ field.id_for_label }}" class="form-label">{{ field.label }}</label>
+                    {{ field }}
+                    {% if field.help_text %}
+                        <small class="form-text">{{ field.help_text }}</small>
+                    {% endif %}
+                    {% for error in field.errors %}
+                        <small class="form-text text-danger">{{ error }}</small>
+                    {% endfor %}
+                </div>
+            {% endfor %}
+            <button type="submit" class="form-submit">Log In</button>
+        </form> {% endcomment %}
+        <form action="/users/login/" method="post">
+            {% csrf_token %}
+            <div class="form-group">
+                <label for="login-username">Username</label>
+                <input type="text" name="login-username" id="login-username" class="form-input">
+            </div>
+            <div class="form-group">
+                <label for="login-password">Password</label>
+                <input type="password" name="login-password" id="login-password" class="form-input">
+                <div class="character-container">
+                    <svg class="character" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+                        <!-- Face -->
+                        <circle class="character-face" cx="50" cy="50" r="40" />
+                        <!-- Eyes -->
+                        <circle class="character-eyes" cx="35" cy="40" r="8" />
+                        <circle class="character-eyes" cx="65" cy="40" r="8" />
+                        <!-- Pupils -->
+                        <circle class="character-pupils" cx="35" cy="40" r="4" />
+                        <circle class="character-pupils" cx="65" cy="40" r="4" />
+                        <!-- Smile -->
+                        <path d="M30 60 Q50 75 70 60" stroke="#333" stroke-width="3" fill="none" />
+                        <!-- Hand -->
+                        <path class="character-hand" d="M20 40 Q30 30 40 40 L40 50 Q30 60 20 50 Z" />
+                    </svg>
+                </div>
+            </div>
+            <button type="submit" class="form-submit">Log In</button>
+        </form>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const passwordField = document.getElementById('login-password');
+            const characterContainer = document.querySelector('.character-container');
+            
+            // When password field is focused, cover the eyes
+            passwordField.addEventListener('focus', function() {
+                characterContainer.classList.add('eyes-covered');
+            });
+            
+            // When password field loses focus, uncover the eyes
+            passwordField.addEventListener('blur', function() {
+                characterContainer.classList.remove('eyes-covered');
+            });
+            
+            // Also cover eyes when typing in the password field
+            passwordField.addEventListener('input', function() {
+                if (!characterContainer.classList.contains('eyes-covered')) {
+                    characterContainer.classList.add('eyes-covered');
+                }
+            });
+        });
+    </script>
+</body>
+
+</html>
