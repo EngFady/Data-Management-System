@@ -1,0 +1,709 @@
+{% extends "arcapp/base.html" %}
+{% block content %}
+<!-- Enhanced Provider Segregations Report -->
+<style>
+  /* Modern color scheme and base styles */
+  :root {
+    --primary: #2563eb;
+    --primary-dark: #1d4ed8;
+    --primary-light: #dbeafe;
+    --primary-border: #bfdbfe;
+    --success: #10b981;
+    --success-light: #d1fae5;
+    --success-border: #a7f3d0;
+    --warning: #f59e0b;
+    --warning-light: #fef3c7;
+    --gray-100: #f3f4f6;
+    --gray-200: #e5e7eb;
+    --gray-300: #d1d5db;
+    --gray-700: #374151;
+    --gray-800: #1f2937;
+    --white: #ffffff;
+    --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+    --shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06);
+    --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+    --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+    --radius: 0.5rem;
+  }
+
+  /* Main container styling */
+  .report-container {
+    max-width: 1200px;
+    margin: 2rem auto;
+    background-color: var(--white);
+    border-radius: var(--radius);
+    box-shadow: var(--shadow-lg);
+    overflow: hidden;
+  }
+
+  /* Header styling */
+  .report-header {
+    background: linear-gradient(to right, var(--primary), var(--primary-dark));
+    color: white;
+    padding: 1.5rem 2rem;
+    border-radius: var(--radius) var(--radius) 0 0;
+  }
+
+  .report-header h2 {
+    margin: 0;
+    font-size: 1.75rem;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+
+  /* Form styling */
+  .report-form {
+    padding: 1.5rem;
+    background-color: var(--white);
+  }
+
+  .filter-container {
+    background-color: var(--primary-light);
+    border: 1px solid var(--primary-border);
+    border-radius: var(--radius);
+    padding: 1.25rem;
+    margin-bottom: 1.5rem;
+  }
+
+  .filter-title {
+    color: var(--primary-dark);
+    font-size: 1.125rem;
+    font-weight: 600;
+    margin-top: 0;
+    margin-bottom: 1rem;
+  }
+
+  .form-grid {
+    display: grid;
+    grid-template-columns: repeat(1, 1fr);
+    gap: 1rem;
+  }
+
+  @media (min-width: 640px) {
+    .form-grid {
+      grid-template-columns: repeat(2, 1fr);
+    }
+  }
+
+  @media (min-width: 1024px) {
+    .form-grid {
+      grid-template-columns: repeat(4, 1fr);
+    }
+  }
+
+  .form-group {
+    margin-bottom: 0.5rem;
+  }
+
+  .form-label {
+    display: flex;
+    align-items: center;
+    gap: 0.25rem;
+    font-size: 0.875rem;
+    font-weight: 500;
+    color: var(--gray-700);
+    margin-bottom: 0.375rem;
+  }
+
+  .form-control {
+    display: block;
+    width: 100%;
+    padding: 0.625rem 0.75rem;
+    font-size: 0.875rem;
+    line-height: 1.5;
+    color: var(--gray-800);
+    background-color: var(--white);
+    background-clip: padding-box;
+    border: 1px solid var(--gray-300);
+    border-radius: var(--radius);
+    transition: border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
+  }
+
+  .form-control:focus {
+    border-color: var(--primary);
+    outline: 0;
+    box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.25);
+  }
+
+  select.form-control {
+    appearance: none;
+    background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%236b7280' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='M6 8l4 4 4-4'/%3e%3c/svg%3e");
+    background-position: right 0.5rem center;
+    background-repeat: no-repeat;
+    background-size: 1.5em 1.5em;
+    padding-right: 2.5rem;
+  }
+
+  /* Button styling */
+  .btn-submit {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    padding: 0.875rem 1.5rem;
+    margin-top: 1rem;
+    font-size: 1rem;
+    font-weight: 500;
+    color: white;
+    background-color: var(--primary);
+    border: none;
+    border-radius: var(--radius);
+    cursor: pointer;
+    transition: all 0.2s ease;
+    gap: 0.5rem;
+  }
+
+  .btn-submit:hover {
+    background-color: var(--primary-dark);
+    transform: translateY(-1px);
+  }
+
+  .btn-submit:active {
+    transform: translateY(0);
+  }
+
+  .btn-submit:disabled {
+    opacity: 0.7;
+    cursor: not-allowed;
+  }
+
+  /* Alert styling */
+  .alert {
+    padding: 1rem;
+    margin-bottom: 1rem;
+    border-radius: var(--radius);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    animation: fadeIn 0.3s ease-out;
+  }
+
+  .alert-info {
+    background-color: var(--primary-light);
+    border: 1px solid var(--primary-border);
+    color: var(--primary-dark);
+  }
+
+  .alert-success {
+    background-color: var(--success-light);
+    border: 1px solid var(--success-border);
+    color: var(--success);
+  }
+
+  .alert-warning {
+    background-color: var(--warning-light);
+    border: 1px solid var(--warning-light);
+    color: var(--warning);
+  }
+
+  /* Badge styling */
+  .badge {
+    display: inline-flex;
+    align-items: center;
+    padding: 0.25rem 0.75rem;
+    font-size: 0.75rem;
+    font-weight: 600;
+    line-height: 1;
+    text-align: center;
+    white-space: nowrap;
+    vertical-align: baseline;
+    border-radius: 9999px;
+  }
+
+  .badge-secondary {
+    color: white;
+    background-color: var(--primary);
+  }
+
+  /* Table styling */
+  .table-container {
+    border-radius: var(--radius);
+    border: 1px solid var(--gray-200);
+    overflow: hidden;
+    box-shadow: var(--shadow-sm);
+    margin-top: 1.5rem;
+    animation: fadeIn 0.3s ease-out;
+  }
+
+  .table-responsive {
+    overflow-x: auto;
+  }
+
+  .table {
+    width: 100%;
+    border-collapse: collapse;
+  }
+
+  .table th {
+    background: linear-gradient(to right, var(--primary), var(--primary-dark));
+    color: white;
+    font-weight: 600;
+    text-align: left;
+    padding: 0.75rem 1rem;
+    position: sticky;
+    top: 0;
+    z-index: 10;
+  }
+
+  .table td {
+    padding: 0.75rem 1rem;
+    border-top: 1px solid var(--gray-200);
+    vertical-align: middle;
+  }
+
+  .table tr:nth-child(even) {
+    background-color: var(--gray-100);
+  }
+
+  .table tr:hover {
+    background-color: var(--primary-light);
+    transition: background-color 0.15s ease-in-out;
+  }
+
+  /* Download success message */
+  .download-success {
+    text-align: center;
+    padding: 2rem;
+    background-color: var(--success-light);
+    border: 1px solid var(--success-border);
+    border-radius: var(--radius);
+    margin-top: 1.5rem;
+    animation: fadeIn 0.3s ease-out;
+  }
+
+  .download-icon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 4rem;
+    height: 4rem;
+    background-color: rgba(16, 185, 129, 0.2);
+    border-radius: 9999px;
+    margin-bottom: 1rem;
+  }
+
+  .download-title {
+    font-size: 1.25rem;
+    font-weight: 600;
+    color: var(--success);
+    margin-bottom: 0.5rem;
+  }
+
+  .download-text {
+    color: var(--gray-700);
+    margin-bottom: 1rem;
+  }
+
+  .download-link {
+    display: inline-flex;
+    align-items: center;
+    padding: 0.5rem 1rem;
+    font-size: 0.875rem;
+    font-weight: 500;
+    color: var(--success);
+    background-color: white;
+    border: 1px solid var(--success-border);
+    border-radius: var(--radius);
+    text-decoration: none;
+    transition: all 0.2s ease;
+  }
+
+  .download-link:hover {
+    background-color: var(--success-light);
+  }
+
+  /* Loading spinner */
+  .spinner {
+    display: inline-block;
+    width: 1rem;
+    height: 1rem;
+    border: 2px solid rgba(255, 255, 255, 0.3);
+    border-radius: 50%;
+    border-top-color: white;
+    animation: spin 1s ease-in-out infinite;
+    margin-right: 0.5rem;
+  }
+
+  @keyframes spin {
+    to {
+      transform: rotate(360deg);
+    }
+  }
+
+  @keyframes fadeIn {
+    from {
+      opacity: 0;
+      transform: translateY(10px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  /* Icons */
+  .icon {
+    display: inline-block;
+    width: 1em;
+    height: 1em;
+    stroke-width: 0;
+    stroke: currentColor;
+    fill: currentColor;
+    vertical-align: -0.125em;
+  }
+
+  .icon-sm {
+    width: 0.875em;
+    height: 0.875em;
+  }
+
+  .icon-calendar, .icon-download, .icon-filter, .icon-file {
+    fill: none;
+    stroke: currentColor;
+    stroke-width: 2;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+  }
+
+  /* Print styles */
+  @media print {
+    body {
+      background-color: white;
+    }
+    
+    .report-container {
+      margin: 0;
+      box-shadow: none;
+      max-width: 100%;
+    }
+    
+    .report-header {
+      background: none;
+      color: black;
+      padding: 1rem 0;
+    }
+    
+    .filter-container, .btn-submit, .download-success {
+      display: none;
+    }
+    
+    .table th {
+      background: none;
+      color: black;
+      border-bottom: 2px solid #333;
+    }
+    
+    .table tr:nth-child(even) {
+      background-color: #f9f9f9;
+    }
+    
+    .alert-info {
+      background: none;
+      border: 1px solid #ccc;
+      color: #333;
+    }
+    
+    .badge-secondary {
+      background-color: #eee;
+      color: #333;
+      border: 1px solid #ccc;
+    }
+  }
+</style>
+
+<div class="report-container">
+  <div class="report-header">
+    <h2>
+      <svg class="icon icon-filter" viewBox="0 0 24 24" width="24" height="24">
+        <path d="M22 3H2l8 9.46V19l4 2v-8.54L22 3z"></path>
+      </svg>
+      Provider Segregations Report
+    </h2>
+  </div>
+  
+  <div class="report-form">
+    <form method="get" id="reportForm">
+      <div class="filter-container">
+        <h3 class="filter-title">Date Filter Options</h3>
+        <div class="form-grid">
+          <div class="form-group">
+            <label class="form-label" for="{{ form.date_field.id_for_label }}">
+              <svg class="icon icon-sm icon-calendar" viewBox="0 0 24 24" width="16" height="16">
+                <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
+                <line x1="16" y1="2" x2="16" y2="6"></line>
+                <line x1="8" y1="2" x2="8" y2="6"></line>
+                <line x1="3" y1="10" x2="21" y2="10"></line>
+              </svg>
+              {{ form.date_field.label }}
+            </label>
+            <select name="{{ form.date_field.html_name }}" id="{{ form.date_field.id_for_label }}" class="form-control">
+              {% for value, text in form.date_field.field.choices %}
+                <option value="{{ value }}" {% if form.date_field.value == value %}selected{% endif %}>{{ text }}</option>
+              {% endfor %}
+            </select>
+          </div>
+          
+          <div class="form-group">
+            <label class="form-label" for="{{ form.start_date.id_for_label }}">
+              <svg class="icon icon-sm icon-calendar" viewBox="0 0 24 24" width="16" height="16">
+                <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
+                <line x1="16" y1="2" x2="16" y2="6"></line>
+                <line x1="8" y1="2" x2="8" y2="6"></line>
+                <line x1="3" y1="10" x2="21" y2="10"></line>
+              </svg>
+              {{ form.start_date.label }}
+            </label>
+            <input type="date" name="{{ form.start_date.html_name }}" id="{{ form.start_date.id_for_label }}" class="form-control" value="{{ form.start_date.value|default:'' }}">
+          </div>
+          
+          <div class="form-group">
+            <label class="form-label" for="{{ form.end_date.id_for_label }}">
+              <svg class="icon icon-sm icon-calendar" viewBox="0 0 24 24" width="16" height="16">
+                <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
+                <line x1="16" y1="2" x2="16" y2="6"></line>
+                <line x1="8" y1="2" x2="8" y2="6"></line>
+                <line x1="3" y1="10" x2="21" y2="10"></line>
+              </svg>
+              {{ form.end_date.label }}
+            </label>
+            <input type="date" name="{{ form.end_date.html_name }}" id="{{ form.end_date.id_for_label }}" class="form-control" value="{{ form.end_date.value|default:'' }}">
+          </div>
+          
+          <div class="form-group">
+            <label class="form-label" for="{{ form.export_format.id_for_label }}">
+              <svg class="icon icon-sm icon-file" viewBox="0 0 24 24" width="16" height="16">
+                <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                <polyline points="14 2 14 8 20 8"></polyline>
+                <line x1="16" y1="13" x2="8" y2="13"></line>
+                <line x1="16" y1="17" x2="8" y2="17"></line>
+                <polyline points="10 9 9 9 8 9"></polyline>
+              </svg>
+              {{ form.export_format.label }}
+            </label>
+            <select name="{{ form.export_format.html_name }}" id="{{ form.export_format.id_for_label }}" class="form-control">
+              {% for value, text in form.export_format.field.choices %}
+                <option value="{{ value }}" {% if form.export_format.value == value %}selected{% endif %}>{{ text }}</option>
+              {% endfor %}
+            </select>
+          </div>
+        </div>
+      </div>
+      
+      <button type="submit" id="submitButton" class="btn-submit">
+        <span id="loadingSpinner" class="spinner" style="display: none;"></span>
+        <span id="submitText">
+          <svg class="icon icon-download" viewBox="0 0 24 24" width="18" height="18">
+            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+            <polyline points="7 10 12 15 17 10"></polyline>
+            <line x1="12" y1="15" x2="12" y2="3"></line>
+          </svg>
+          Generate Report
+        </span>
+      </button>
+    </form>
+
+    {% if form.is_bound and form.cleaned_data.export_format == 'html' %}
+      <div class="alert alert-info">
+        <div>
+          <strong>Showing results filtered by {{ selected_date_label }}</strong><br>
+          From {{ start_date|date:"Y-m-d" }} to {{ end_date|date:"Y-m-d" }}
+        </div>
+        <span class="badge badge-secondary">{{ segregations|length }} records found</span>
+      </div>
+      
+      {% if segregations %}
+      <div class="table-container">
+        <div class="table-responsive">
+          <table class="table data-table" id="resultsTable">
+            <thead>
+              <tr>
+                <th data-sort="string">Claim Code</th>
+                <th data-sort="string">Provider</th>
+                <th data-sort="string">Box Number</th>
+                <th data-sort="date">{{ selected_date_label }}</th>
+                <th data-sort="string">Policy ID</th>
+                <th data-sort="string">Client</th>
+                <th data-sort="date">Audit Date</th>
+                <th data-sort="date">Request Date</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for seg in segregations %}
+              <tr>
+                <td>{{ seg.ClaimCode }}</td>
+                <td>{{ seg.Provider_name }}</td>
+                <td>{{ seg.box_number.box_number }}</td>
+                <td>{{ seg.selected_date|date:"Y-m-d" }}</td>
+                <td>{{ seg.PolicyId.policy_id }}</td>
+                <td>{{ seg.Client_name }}</td>
+                <td>{{ seg.Audit_date|date:"Y-m-d" }}</td>
+                <td>{{ seg.request_date|date:"Y-m-d" }}</td>
+              </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+      </div>
+      {% else %}
+      <div class="alert alert-warning">
+        No records found in the selected date range
+      </div>
+      {% endif %}
+    {% elif form.is_bound %}
+      <div class="download-success">
+        <div class="download-icon">
+          <svg class="icon icon-download" viewBox="0 0 24 24" width="32" height="32">
+            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+            <polyline points="7 10 12 15 17 10"></polyline>
+            <line x1="12" y1="15" x2="12" y2="3"></line>
+          </svg>
+        </div>
+        <h3 class="download-title">Your download is ready!</h3>
+        <p class="download-text">
+          Your file has been generated and should start downloading automatically.
+        </p>
+        <a href="{{ request.get_full_path }}" class="download-link">Download Again</a>
+      </div>
+    {% endif %}
+  </div>
+</div>
+
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+    // Get form elements
+    const reportForm = document.getElementById('reportForm');
+    const submitButton = document.getElementById('submitButton');
+    const submitText = document.getElementById('submitText');
+    const loadingSpinner = document.getElementById('loadingSpinner');
+    const exportFormat = document.querySelector('select[name="{{ form.export_format.html_name }}"]');
+    
+    // Form validation
+    function validateDateRange() {
+      const startDate = document.querySelector('input[name="{{ form.start_date.html_name }}"]').value;
+      const endDate = document.querySelector('input[name="{{ form.end_date.html_name }}"]').value;
+      
+      if (!startDate || !endDate) {
+        return true; // Let Django handle required fields
+      }
+      
+      const start = new Date(startDate);
+      const end = new Date(endDate);
+      
+      if (start > end) {
+        alert('Start date must be before end date');
+        return false;
+      }
+      
+      // Limit to 1 year range
+      const oneYear = 365 * 24 * 60 * 60 * 1000;
+      if (end - start > oneYear) {
+        alert('Date range cannot exceed 1 year');
+        return false;
+      }
+      
+      return true;
+    }
+    
+    // Add event listener to form submission
+    if (reportForm) {
+      reportForm.addEventListener('submit', function(e) {
+        // Validate form
+        if (!validateDateRange()) {
+          e.preventDefault();
+          return false;
+        }
+        
+        // Show loading state
+        if (submitButton) {
+          submitButton.disabled = true;
+          loadingSpinner.style.display = 'inline-block';
+          submitText.textContent = 'Processing...';
+        }
+        
+        return true;
+      });
+    }
+    
+    // Table sorting functionality
+    const table = document.getElementById('resultsTable');
+    if (table) {
+      const headers = table.querySelectorAll('th');
+      
+      headers.forEach(header => {
+        header.addEventListener('click', function() {
+          const sortType = this.getAttribute('data-sort');
+          const columnIndex = Array.from(headers).indexOf(this);
+          
+          if (!sortType) return;
+          
+          const rows = Array.from(table.querySelectorAll('tbody tr'));
+          const currentDirection = this.getAttribute('data-direction') || 'asc';
+          const newDirection = currentDirection === 'asc' ? 'desc' : 'asc';
+          
+          // Reset all headers
+          headers.forEach(h => h.removeAttribute('data-direction'));
+          
+          // Set direction on current header
+          this.setAttribute('data-direction', newDirection);
+          
+          // Add visual indicator
+          this.style.position = 'relative';
+          const indicator = newDirection === 'asc' ? ' ↑' : ' ↓';
+          
+          // Remove existing indicators
+          headers.forEach(h => {
+            h.textContent = h.textContent.replace(/ [↑↓]$/, '');
+          });
+          
+          // Add indicator to current header
+          if (!this.textContent.match(/ [↑↓]$/)) {
+            this.textContent += indicator;
+          }
+          
+          // Sort the rows
+          rows.sort((a, b) => {
+            let aValue = a.cells[columnIndex].textContent.trim();
+            let bValue = b.cells[columnIndex].textContent.trim();
+            
+            if (sortType === 'date') {
+              aValue = new Date(aValue).getTime();
+              bValue = new Date(bValue).getTime();
+              
+              return newDirection === 'asc' ? aValue - bValue : bValue - aValue;
+            } else {
+              return newDirection === 'asc' 
+                ? aValue.localeCompare(bValue) 
+                : bValue.localeCompare(aValue);
+            }
+          });
+          
+          
+          const tbody = table.querySelector('tbody');
+          rows.forEach(row => tbody.appendChild(row));
+        });
+        
+        // Add cursor pointer to sortable headers
+        if (header.getAttribute('data-sort')) {
+          header.style.cursor = 'pointer';
+          header.title = 'Click to sort';
+        }
+      });
+    }
+    
+    // Add hover effect to table rows
+    const tableRows = document.querySelectorAll('.data-table tbody tr');
+    tableRows.forEach(row => {
+      row.addEventListener('mouseenter', function() {
+        this.style.backgroundColor = 'var(--primary-light)';
+      });
+      row.addEventListener('mouseleave', function() {
+        // Reset to original color (either white or light gray depending on even/odd)
+        const isEven = Array.from(tableRows).indexOf(this) % 2 === 1;
+        this.style.backgroundColor = isEven ? 'var(--gray-100)' : '';
+      });
+    });
+  });
+</script>
+{% endblock content %}

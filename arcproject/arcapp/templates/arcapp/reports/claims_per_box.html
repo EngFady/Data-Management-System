@@ -1,0 +1,574 @@
+{% extends "arcapp/base.html" %}
+{% load static %}
+
+{% block extra_css %}
+<style>
+    :root {
+        --primary-green: #0c5435;
+        --secondary-green: #1a7c57;
+        --light-green: #e8f5f0;
+        --primary-orange: #f6811f;
+        --secondary-orange: #ff9933;
+        --light-orange: #fff4e6;
+        --dark-text: #2d3748;
+        --light-text: #718096;
+        --white: #ffffff;
+        --light-gray: #f7fafc;
+        --border-color: #e2e8f0;
+    }
+
+    body {
+        background: linear-gradient(135deg, var(--light-green) 0%, var(--light-orange) 100%);
+        min-height: 100vh;
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        color: var(--dark-text);
+    }
+
+    .custom-content {
+        padding: 40px 25px;
+        margin-top: 20px;
+        width: 100%;
+        max-width: 900px;
+        margin-left: auto;
+        margin-right: auto;
+    }
+
+    .page-header {
+        text-align: center;
+        margin-bottom: 50px;
+        position: relative;
+    }
+
+    .page-header::before {
+        content: '';
+        position: absolute;
+        top: -20px;
+        left: 50%;
+        transform: translateX(-50%);
+        width: 80px;
+        height: 4px;
+        background: linear-gradient(90deg, var(--primary-green), var(--primary-orange));
+        border-radius: 2px;
+    }
+
+    .page-title {
+        font-size: 2.5rem;
+        font-weight: 700;
+        background: linear-gradient(135deg, var(--primary-green), var(--primary-orange));
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+        margin-bottom: 10px;
+        animation: fadeInUp 0.8s ease-out;
+    }
+
+    .page-subtitle {
+        color: var(--light-text);
+        font-size: 1.1rem;
+        font-weight: 400;
+        animation: fadeInUp 0.8s ease-out 0.2s both;
+    }
+
+    .card {
+        background: var(--white);
+        border-radius: 20px;
+        padding: 35px;
+        margin-bottom: 30px;
+        box-shadow: 0 10px 30px rgba(0,0,0,0.08);
+        border: 1px solid var(--border-color);
+        transition: all 0.3s ease;
+        position: relative;
+        overflow: hidden;
+        animation: fadeInUp 0.8s ease-out 0.4s both;
+    }
+
+    .card::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 4px;
+        background: linear-gradient(90deg, var(--primary-green), var(--primary-orange));
+    }
+
+    .card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 20px 40px rgba(0,0,0,0.12);
+    }
+
+    .card-title {
+        color: var(--primary-green);
+        font-size: 1.4rem;
+        font-weight: 600;
+        margin-bottom: 20px;
+        display: flex;
+        align-items: center;
+        gap: 12px;
+    }
+
+    .card-title i {
+        color: var(--primary-orange);
+        font-size: 1.2rem;
+    }
+
+    .instructions-list {
+        list-style: none;
+        padding: 0;
+        margin: 20px 0;
+    }
+
+    .instructions-list li {
+        background: var(--light-gray);
+        padding: 15px 20px;
+        margin-bottom: 12px;
+        border-radius: 12px;
+        border-left: 4px solid var(--primary-green);
+        transition: all 0.3s ease;
+        position: relative;
+    }
+
+    .instructions-list li:hover {
+        background: var(--light-green);
+        transform: translateX(5px);
+    }
+
+    .instructions-list li::before {
+        content: counter(step-counter);
+        counter-increment: step-counter;
+        position: absolute;
+        left: -15px;
+        top: 50%;
+        transform: translateY(-50%);
+        background: var(--primary-green);
+        color: white;
+        width: 28px;
+        height: 28px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: 600;
+        font-size: 0.9rem;
+    }
+
+    .instructions-list {
+        counter-reset: step-counter;
+    }
+
+    .form-section {
+        background: var(--white);
+        border-radius: 20px;
+        padding: 40px;
+        box-shadow: 0 15px 35px rgba(0,0,0,0.1);
+        border: 1px solid var(--border-color);
+        position: relative;
+        overflow: hidden;
+        animation: fadeInUp 0.8s ease-out 0.6s both;
+    }
+
+    .form-section::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 4px;
+        background: linear-gradient(90deg, var(--primary-orange), var(--primary-green));
+    }
+
+    .form-label {
+        color: var(--primary-green);
+        font-weight: 600;
+        font-size: 1.1rem;
+        margin-bottom: 10px;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+
+    .form-control {
+        border: 2px solid var(--border-color);
+        border-radius: 12px;
+        padding: 15px 20px;
+        font-size: 1rem;
+        transition: all 0.3s ease;
+        background: var(--light-gray);
+    }
+
+    .form-control:focus {
+        border-color: var(--primary-green);
+        box-shadow: 0 0 0 3px rgba(12, 84, 53, 0.1);
+        background: var(--white);
+        transform: translateY(-2px);
+        outline: none;
+    }
+
+    .form-text {
+        color: var(--light-text);
+        font-size: 0.9rem;
+        margin-top: 8px;
+        display: flex;
+        align-items: center;
+        gap: 6px;
+    }
+
+    .btn-primary {
+        background: linear-gradient(135deg, var(--primary-green), var(--secondary-green));
+        border: none;
+        padding: 16px 32px;
+        font-size: 1.1rem;
+        font-weight: 600;
+        border-radius: 12px;
+        transition: all 0.3s ease;
+        position: relative;
+        overflow: hidden;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        color: white;
+    }
+
+    .btn-primary::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: -100%;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(135deg, var(--primary-orange), var(--secondary-orange));
+        transition: left 0.3s ease;
+        z-index: 0;
+    }
+
+    .btn-primary:hover::before {
+        left: 0;
+    }
+
+    .btn-primary:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 10px 25px rgba(246, 129, 31, 0.3);
+        color: white;
+    }
+
+    .btn-primary span {
+        position: relative;
+        z-index: 1;
+    }
+
+    .btn-outline-primary {
+        color: var(--primary-green);
+        border: 2px solid var(--primary-green);
+        background: transparent;
+        padding: 12px 24px;
+        font-weight: 600;
+        border-radius: 12px;
+        transition: all 0.3s ease;
+        position: relative;
+        overflow: hidden;
+        text-decoration: none;
+        display: inline-block;
+    }
+
+    .btn-outline-primary::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: -100%;
+        width: 100%;
+        height: 100%;
+        background: var(--primary-green);
+        transition: left 0.3s ease;
+        z-index: 0;
+    }
+
+    .btn-outline-primary:hover::before {
+        left: 0;
+    }
+
+    .btn-outline-primary:hover {
+        color: white;
+        border-color: var(--primary-green);
+        transform: translateY(-2px);
+        box-shadow: 0 8px 20px rgba(12, 84, 53, 0.2);
+        text-decoration: none;
+    }
+
+    .btn-outline-primary span {
+        position: relative;
+        z-index: 1;
+    }
+
+    .alert-danger {
+        background: linear-gradient(135deg, #fee, #fdd);
+        border: 1px solid #fcc;
+        color: #c53030;
+        border-radius: 12px;
+        padding: 15px 20px;
+        margin-bottom: 25px;
+        animation: shake 0.5s ease-in-out;
+    }
+
+    .upload-area {
+        position: relative;
+        border: 2px dashed var(--border-color);
+        border-radius: 16px;
+        padding: 40px 20px;
+        text-align: center;
+        background: var(--light-gray);
+        transition: all 0.3s ease;
+        margin-bottom: 25px;
+    }
+
+    .upload-area:hover {
+        border-color: var(--primary-green);
+        background: var(--light-green);
+    }
+
+    .upload-icon {
+        font-size: 3rem;
+        color: var(--primary-orange);
+        margin-bottom: 15px;
+        animation: bounce 2s infinite;
+    }
+
+    .upload-text {
+        color: var(--dark-text);
+        font-size: 1.1rem;
+        font-weight: 500;
+        margin-bottom: 10px;
+    }
+
+    .upload-subtext {
+        color: var(--light-text);
+        font-size: 0.9rem;
+    }
+
+    @keyframes fadeInUp {
+        from {
+            opacity: 0;
+            transform: translateY(30px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    @keyframes bounce {
+        0%, 20%, 50%, 80%, 100% {
+            transform: translateY(0);
+        }
+        40% {
+            transform: translateY(-10px);
+        }
+        60% {
+            transform: translateY(-5px);
+        }
+    }
+
+    @keyframes shake {
+        0%, 100% { transform: translateX(0); }
+        25% { transform: translateX(-5px); }
+        75% { transform: translateX(5px); }
+    }
+
+    .progress-bar {
+        height: 4px;
+        background: var(--border-color);
+        border-radius: 2px;
+        overflow: hidden;
+        margin-top: 15px;
+        display: none;
+    }
+
+    .progress-fill {
+        height: 100%;
+        background: linear-gradient(90deg, var(--primary-green), var(--primary-orange));
+        width: 0%;
+        transition: width 0.3s ease;
+    }
+
+    .mb-4 {
+        margin-bottom: 1.5rem;
+    }
+
+    .w-100 {
+        width: 100%;
+    }
+
+    .mt-3 {
+        margin-top: 1rem;
+    }
+
+    .fw-bold {
+        font-weight: 600;
+    }
+
+    @media (max-width: 768px) {
+        .custom-content {
+            padding: 20px 15px;
+        }
+        
+        .page-title {
+            font-size: 2rem;
+        }
+        
+        .card, .form-section {
+            padding: 25px;
+        }
+        
+        .upload-area {
+            padding: 30px 15px;
+        }
+    }
+</style>
+{% endblock extra_css %}
+
+{% block content %}
+<div class="custom-content">
+    <div class="page-header">
+        <h1 class="page-title">
+            <i class="fas fa-box"></i> Bulk Claims Export
+        </h1>
+        <p class="page-subtitle">Streamline your claims processing with our bulk export tool</p>
+    </div>
+    
+    <div class="card">
+        <h5 class="card-title">
+            <i class="fas fa-file-alt"></i> Export Instructions
+        </h5>
+        <ol class="instructions-list">
+            <li>Download the sample CSV template below</li>
+            <li>Fill in the box numbers you want to export</li>
+            <li>Upload the completed CSV file using the form</li>
+        </ol>
+        <a href="{% url 'generate_sample_sheet' %}" class="btn btn-outline-primary mt-3">
+            <span><i class="fas fa-download"></i> Download Sample CSV</span>
+        </a>
+    </div>
+
+    <div class="form-section">
+        <form method="POST" enctype="multipart/form-data" id="uploadForm">
+            {% csrf_token %}
+            {% if error %}
+                <div class="alert alert-danger">
+                    {{ error }}
+                </div>
+            {% endif %}
+            
+            <div class="mb-4">
+                <label for="box_file_upload" class="form-label fw-bold">
+                    <i class="fas fa-upload"></i> Upload CSV File *
+                </label>
+                
+                <div class="upload-area" id="uploadArea">
+                    <div class="upload-icon">
+                        <i class="fas fa-cloud-upload-alt"></i>
+                    </div>
+                    <div class="upload-text">Drag & drop your CSV file here</div>
+                    <div class="upload-subtext">or click to browse</div>
+                    <input type="file" 
+                           name="box_file" 
+                           id="box_file_upload"
+                           class="form-control"
+                           accept=".csv"
+                           required
+                           style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; opacity: 0; cursor: pointer;">
+                </div>
+                
+                <div class="form-text">
+                    <i class="fas fa-info-circle"></i> CSV must include 'box_number' column
+                </div>
+                
+                <div class="progress-bar" id="progressBar">
+                    <div class="progress-fill" id="progressFill"></div>
+                </div>
+            </div>
+            
+            <button type="submit" class="btn btn-primary w-100" id="submitBtn">
+                <span><i class="fas fa-upload"></i> Process and Export</span>
+            </button>
+        </form>
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const form = document.getElementById('uploadForm');
+    const fileInput = document.getElementById('box_file_upload');
+    const uploadArea = document.getElementById('uploadArea');
+    const submitBtn = document.getElementById('submitBtn');
+    const progressBar = document.getElementById('progressBar');
+    const progressFill = document.getElementById('progressFill');
+
+    // File upload area interactions
+    uploadArea.addEventListener('dragover', function(e) {
+        e.preventDefault();
+        this.style.borderColor = 'var(--primary-green)';
+        this.style.background = 'var(--light-green)';
+    });
+
+    uploadArea.addEventListener('dragleave', function(e) {
+        e.preventDefault();
+        this.style.borderColor = 'var(--border-color)';
+        this.style.background = 'var(--light-gray)';
+    });
+
+    uploadArea.addEventListener('drop', function(e) {
+        e.preventDefault();
+        this.style.borderColor = 'var(--border-color)';
+        this.style.background = 'var(--light-gray)';
+        
+        const files = e.dataTransfer.files;
+        if (files.length > 0) {
+            fileInput.files = files;
+            updateFileDisplay(files[0]);
+        }
+    });
+
+    fileInput.addEventListener('change', function() {
+        if (this.files.length > 0) {
+            updateFileDisplay(this.files[0]);
+        }
+    });
+
+    function updateFileDisplay(file) {
+        const uploadIcon = uploadArea.querySelector('.upload-icon i');
+        const uploadText = uploadArea.querySelector('.upload-text');
+        const uploadSubtext = uploadArea.querySelector('.upload-subtext');
+        
+        uploadIcon.className = 'fas fa-file-csv';
+        uploadText.textContent = file.name;
+        uploadSubtext.textContent = `Size: ${(file.size / 1024).toFixed(1)} KB`;
+        uploadArea.style.borderColor = 'var(--primary-green)';
+        uploadArea.style.background = 'var(--light-green)';
+    }
+
+    // Form submission
+    if (form) {
+        form.addEventListener('submit', function(e) {
+            const submitSpan = submitBtn.querySelector('span');
+            submitBtn.disabled = true;
+            submitSpan.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Processing...';
+            
+            // Show progress bar
+            progressBar.style.display = 'block';
+            
+            // Simulate progress (in real implementation, you'd track actual upload progress)
+            let progress = 0;
+            const progressInterval = setInterval(() => {
+                progress += Math.random() * 15;
+                if (progress > 90) progress = 90;
+                progressFill.style.width = progress + '%';
+            }, 200);
+            
+            
+            setTimeout(() => {
+                clearInterval(progressInterval);
+                progressFill.style.width = '100%';
+            }, 3000);
+        });
+    }
+});
+</script>
+{% endblock content %}

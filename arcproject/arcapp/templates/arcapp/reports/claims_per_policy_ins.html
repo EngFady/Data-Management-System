@@ -1,0 +1,82 @@
+{% extends "arcapp/base.html" %}
+{% block content %}
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Claims Report</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<body>
+    <div class="container mt-5">
+        <h2 class="mb-4">Claims Report</h2>
+        
+        <!-- Filter Form -->
+        <form method="get" class="mb-4 border p-3 rounded">
+            {% if error %}
+                <div class="alert alert-danger">{{ error }}</div>
+            {% endif %}
+            
+            <div class="row">
+                <div class="col-md-6">
+                    <div class="form-group">
+                        <label class="form-label">Insurance Company *</label>
+                        <select name="insurance_company" class="form-select" required>
+                            <option value="">Select Insurance Company</option>
+                            {% for company in insurance_companies %}
+                                <option value="{{ company.name }}"
+                                    {% if selected_company == company.name %}selected{% endif %}>
+                                    {{ company.name }}
+                                </option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                </div>
+                
+                <div class="col-md-6">
+                    <div class="form-group">
+                        <label class="form-label">Policy Number (optional)</label>
+                        <input type="text" name="policy_number" 
+                               value="{{ policy_number }}"
+                               class="form-control"
+                               placeholder="Enter policy number">
+                    </div>
+                </div>
+            </div>
+            <button type="submit" class="btn btn-primary mt-3">Search</button>
+        </form>
+
+        <!-- Results Table -->
+        {% if claims %}
+            <div class="table-responsive">
+                <table class="table table-striped">
+                    <thead class="table-dark">
+                        <tr>
+                            <th>Claim Code</th>
+                            <th>Box Number</th>
+                            <th>Insurance Company</th>
+                            <th>Policy ID</th>
+                            <th>Member Name</th>
+                            <th>Receive Date</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for claim in claims %}
+                            <tr>
+                                <td>{{ claim.ClaimCode }}</td>
+                                <td>{{ claim.box_number.box_number }}</td>
+                                <td>{{ claim.box_number.insurance_company.name }}</td>
+                                <td>{{ claim.PolicyId.policy_id }}</td>
+                                <td>{{ claim.Member_name }}</td>
+                                <td>{{ claim.Receive_date|date:"Y-m-d" }}</td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        {% elif request.GET and not error %}
+            <div class="alert alert-info">No claims found matching the criteria</div>
+        {% endif %}
+    </div>
+</body>
+</html>
+{% endblock content %}

@@ -1,0 +1,212 @@
+{% extends "arcapp/base.html" %}
+{% block content %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Box Statistics Report</title>
+    <style>
+        /* Base Styles */
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 2rem;
+            background-color: #f5f5f5;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            padding: 2rem;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        h2 {
+            color: #2c3e50;
+            margin-bottom: 1.5rem;
+        }
+
+        /* Filter Section */
+        .filters {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .filter-group {
+            background: #f8f9fa;
+            padding: 1rem;
+            border-radius: 6px;
+        }
+
+        .filter-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 600;
+            color: #34495e;
+        }
+
+        select {
+            width: 100%;
+            padding: 0.5rem;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            background: white;
+        }
+
+        /* Table Styles */
+        .results-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 1.5rem;
+        }
+
+        .results-table th,
+        .results-table td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid #ddd;
+        }
+
+        .results-table th {
+            background-color: #2c3e50;
+            color: white;
+        }
+
+        .results-table tr:hover {
+            background-color: #f9f9f9;
+        }
+
+        /* Button Styles */
+        .btn {
+            background-color: #3498db;
+            color: white;
+            padding: 0.5rem 1rem;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+
+        .btn:hover {
+            background-color: #2980b9;
+        }
+
+        /* Count Badge */
+        .results-count {
+            background: #3498db;
+            color: white;
+            padding: 0.3rem 0.8rem;
+            border-radius: 12px;
+            font-size: 0.9rem;
+            margin-left: 1rem;
+        }
+
+        .no-results {
+            text-align: center;
+            color: #7f8c8d;
+            padding: 2rem;
+        }
+        .error-message {
+            color: #dc3545;
+            background-color: #f8d7da;
+            border: 1px solid #f5c6cb;
+            padding: 1rem;
+            border-radius: 4px;
+            margin-bottom: 1.5rem;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h2>Box Statistics Report <span class="results-count">{{ boxes.count }} results</span></h2>
+        
+        <form method="get">
+            <div class="filters">
+                <div class="filter-group">
+                    <label for="locations">Location</label>
+                    <select name="locations" id="locations" multiple>
+                        {% for location in form.locations.field.queryset %}
+                            <option value="{{ location.id }}">{{ location.name }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+
+                <div class="filter-group">
+                    <label for="statuses">Status</label>
+                    <select name="statuses" id="statuses" multiple>
+                        {% for status in form.statuses.field.queryset %}
+                            <option value="{{ status.id }}">{{ status.name }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+
+                <div class="filter-group">
+                    <label for="types">Type</label>
+                    <select name="types" id="types" multiple>
+                        {% for type in form.types.field.queryset %}
+                            <option value="{{ type.id }}">{{ type.name }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+
+                <div class="filter-group">
+                    <label for="insurance_companies">Insurance Company</label>
+                    <select name="insurance_companies" id="insurance_companies">
+                        {% for company in form.insurance_companies.field.queryset %}
+                            <option value="{{ company.id }}">{{ company.name }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+            </div>
+            <button type="submit" class="btn">Apply Filters</button>
+        </form>
+
+        <table class="results-table">
+            <thead>
+                <tr>
+                    <th>Box Number</th>
+                    <th>Type</th>
+                    <th>Location</th>
+                    <th>Status</th>
+                    <th>Insurance Company</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% if boxes %}
+                    {% for box in boxes %}
+                        <tr>
+                            <td>{{ box.box_number }}</td>
+                            <td>{{ box.box_type }}</td>
+                            <td>{{ box.box_location }}</td>
+                            <td>{{ box.box_status }}</td>
+                            <td>{{ box.insurance_company }}</td>
+                        </tr>
+                    {% endfor %}
+                {% else %}
+                    <tr>
+                        <td colspan="5" class="no-results">No boxes found matching the criteria</td>
+                    </tr>
+                {% endif %}
+            </tbody>
+        </table>
+    </div>
+
+    <script>
+        // Add basic multiple select functionality
+        document.querySelectorAll('select[multiple]').forEach(select => {
+            select.addEventListener('mousedown', (e) => {
+                e.preventDefault();
+                const option = e.target;
+                if (option.tagName === 'OPTION') {
+                    option.selected = !option.selected;
+                }
+            });
+        });
+    </script>
+</body>
+</html>
+{% endblock content %}

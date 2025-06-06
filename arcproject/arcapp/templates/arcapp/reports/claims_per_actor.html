@@ -1,0 +1,315 @@
+{% extends "arcapp/base.html" %}
+{% block content %}
+<div class="container">
+    <h2 class="page-title">Claims Per Actor</h2>
+    
+    <form method="get" class="mb-4 report-form">
+        <div class="row g-3">
+            <div class="col-md-3">
+                <label class="form-label">Actor Type</label>
+                {{ form.actor_type }}
+            </div>
+            <div class="col-md-3">
+                <label class="form-label">Actor Name</label>
+                {{ form.actor_query }}
+            </div>
+            <div class="col-md-3">
+                <label class="form-label">Date Type</label>
+                {{ form.date_type }}
+            </div>
+            <div class="col-md-3">
+                <label class="form-label">Start Date</label>
+                {{ form.start_date }}
+            </div>
+            <div class="col-md-3">
+                <label class="form-label">End Date</label>
+                {{ form.end_date }}
+            </div>
+            <div class="col-md-3">
+                <label class="form-label">Export Format</label>
+                {{ form.export_format }}
+            </div>
+            <div class="col-md-12">
+                <button type="submit" class="btn btn-primary w-100 generate-btn">
+                    Generate Report
+                </button>
+            </div>
+        </div>
+    </form>
+
+    {% if form.is_bound and form.cleaned_data.export_format == 'html' %}
+        <div class="alert alert-info mb-3 results-summary">
+            Showing {{ segregations|length }} results for:
+            <strong>{{ actor_label }}</strong> 
+            {% if actor_query %}containing "{{ actor_query }}"{% endif %}
+            between {{ start_date|date:"Y-m-d" }} and {{ end_date|date:"Y-m-d" }}
+        </div>
+        
+        {% if segregations %}
+        <div class="table-responsive results-table">
+            <table class="table table-striped">
+                <thead>
+                    <tr>
+                        <th>Claim Code</th>
+                        <th>{{ actor_label }}</th>
+                        <th>{{ date_label }}</th>
+                        <th>Provider</th>
+                        <th>Box</th>
+                        <th>Policy</th>
+                        <th>Client</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for seg in segregations %}
+                    <tr>
+                        <td>{{ seg.ClaimCode }}</td>
+                        <td>{{ seg.selected_actor }}</td>
+                        <td>{{ seg.selected_date|date:"Y-m-d" }}</td>
+                        <td>{{ seg.Provider_name }}</td>
+                        <td>{{ seg.box_number.box_number }}</td>
+                        <td>{{ seg.PolicyId.policy_id }}</td>
+                        <td>{{ seg.Client_name }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% else %}
+        <div class="alert alert-warning no-results">
+            No records found matching the criteria
+        </div>
+        {% endif %}
+    {% elif form.is_bound %}
+        <div class="alert alert-success download-notice">
+            Your download should start shortly. If not, 
+            <a href="{{ request.get_full_path }}">click here</a>.
+        </div>
+    {% endif %}
+</div>
+
+<style>
+    /* Custom CSS for Claims Per Actor page */
+    :root {
+        --primary-color: #3a6ea5;
+        --secondary-color: #f0f7ff;
+        --accent-color: #ff6b6b;
+        --text-color: #333;
+        --light-gray: #f5f5f5;
+        --border-color: #ddd;
+        --success-color: #28a745;
+        --info-color: #17a2b8;
+        --warning-color: #ffc107;
+    }
+
+    body {
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        color: var(--text-color);
+        background-color: #f9f9f9;
+        line-height: 1.6;
+    }
+
+    .container {
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 20px;
+        background-color: white;
+        box-shadow: 0 0 15px rgba(0, 0, 0, 0.05);
+        border-radius: 8px;
+    }
+
+    .page-title {
+        color: var(--primary-color);
+        margin-bottom: 25px;
+        padding-bottom: 15px;
+        border-bottom: 2px solid var(--secondary-color);
+        font-weight: 600;
+        text-align: center;
+    }
+
+    /* Form styling */
+    .report-form {
+        background-color: var(--secondary-color);
+        padding: 20px;
+        border-radius: 8px;
+        margin-bottom: 25px;
+    }
+
+    .form-label {
+        font-weight: 500;
+        color: var(--primary-color);
+        margin-bottom: 8px;
+        display: block;
+    }
+
+    select, input {
+        width: 100%;
+        padding: 10px;
+        border: 1px solid var(--border-color);
+        border-radius: 4px;
+        background-color: white;
+        font-size: 14px;
+        transition: border-color 0.3s;
+    }
+
+    select:focus, input:focus {
+        outline: none;
+        border-color: var(--primary-color);
+        box-shadow: 0 0 0 2px rgba(58, 110, 165, 0.2);
+    }
+
+    .generate-btn {
+        background-color: var(--primary-color);
+        color: white;
+        border: none;
+        padding: 12px;
+        font-weight: 500;
+        border-radius: 4px;
+        cursor: pointer;
+        transition: background-color 0.3s;
+        margin-top: 15px;
+    }
+
+    .generate-btn:hover {
+        background-color: #2c5282;
+    }
+
+    /* Alert styling */
+    .alert {
+        padding: 15px;
+        border-radius: 4px;
+        margin-bottom: 20px;
+    }
+
+    .alert-info {
+        background-color: #e1f5fe;
+        border-left: 4px solid var(--info-color);
+        color: #0c5460;
+    }
+
+    .alert-warning {
+        background-color: #fff3cd;
+        border-left: 4px solid var(--warning-color);
+        color: #856404;
+    }
+
+    .alert-success {
+        background-color: #d4edda;
+        border-left: 4px solid var(--success-color);
+        color: #155724;
+    }
+
+    .alert a {
+        color: inherit;
+        text-decoration: underline;
+        font-weight: bold;
+    }
+
+    /* Table styling */
+    .results-table {
+        margin-top: 20px;
+        border-radius: 8px;
+        overflow: hidden;
+        box-shadow: 0 0 10px rgba(0, 0, 0, 0.05);
+    }
+
+    .table {
+        width: 100%;
+        border-collapse: collapse;
+        background-color: white;
+    }
+
+    .table th {
+        background-color: var(--primary-color);
+        color: white;
+        padding: 12px 15px;
+        text-align: left;
+        font-weight: 500;
+    }
+
+    .table td {
+        padding: 12px 15px;
+        border-bottom: 1px solid var(--border-color);
+    }
+
+    .table tr:nth-child(even) {
+        background-color: var(--light-gray);
+    }
+
+    .table tr:hover {
+        background-color: var(--secondary-color);
+    }
+
+    /* Responsive adjustments */
+    @media (max-width: 768px) {
+        .container {
+            padding: 15px;
+        }
+
+        .col-md-3 {
+            margin-bottom: 15px;
+        }
+
+        .table th, .table td {
+            padding: 8px 10px;
+            font-size: 14px;
+        }
+    }
+
+    /* Results summary styling */
+    .results-summary {
+        font-size: 16px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        flex-wrap: wrap;
+    }
+
+    .results-summary strong {
+        color: var(--primary-color);
+    }
+
+    /* No results message */
+    .no-results {
+        text-align: center;
+        padding: 30px;
+        font-size: 16px;
+    }
+
+    /* Download notice */
+    .download-notice {
+        text-align: center;
+        padding: 20px;
+    }
+</style>
+
+<script>
+    // Add some basic JavaScript enhancements
+    document.addEventListener('DOMContentLoaded', function() {
+        // Highlight table rows on hover
+        const tableRows = document.querySelectorAll('.table tbody tr');
+        if (tableRows) {
+            tableRows.forEach(row => {
+                row.addEventListener('mouseover', function() {
+                    this.style.cursor = 'pointer';
+                });
+            });
+        }
+
+        // Form validation
+        const reportForm = document.querySelector('.report-form');
+        if (reportForm) {
+            reportForm.addEventListener('submit', function(e) {
+                const startDate = document.querySelector('input[name="start_date"]');
+                const endDate = document.querySelector('input[name="end_date"]');
+                
+                if (startDate && endDate && startDate.value && endDate.value) {
+                    if (new Date(startDate.value) > new Date(endDate.value)) {
+                        e.preventDefault();
+                        alert('Start date cannot be after end date');
+                    }
+                }
+            });
+        }
+    });
+</script>
+{% endblock content %}
