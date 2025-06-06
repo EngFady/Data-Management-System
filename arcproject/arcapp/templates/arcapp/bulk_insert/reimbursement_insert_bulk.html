@@ -1,0 +1,348 @@
+{% extends "arcapp/base.html" %}
+{% block content %}
+
+<style>
+    .bulk-container {
+        background-image: linear-gradient(#0cb946, #f8f8f8);
+        color: #020202;
+        padding: 2rem;
+        border: 2px solid #0c5435;
+        border-radius: 12px;
+        box-shadow: 0 8px 24px rgba(12, 84, 53, 0.2);
+        max-width: 500px;
+        margin: 50px auto;
+        transition: transform 0.3s ease;
+    }
+
+    .bulk-container:hover {
+        transform: translateY(-2px);
+    }
+
+    .bulk-header {
+        color: #0c5435;
+        text-align: center;
+        margin-bottom: 2rem;
+        font-size: 2rem;
+        letter-spacing: -0.5px;
+    }
+
+    .file-actions {
+        display: flex;
+        gap: 1rem;
+        margin-bottom: 1.5rem;
+    }
+
+    .btn {
+        flex: 1;
+        padding: 1rem;
+        border: none;
+        border-radius: 8px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 0.5rem;
+    }
+
+    .download-btn {
+        background-color: #0c5435;
+        color: white;
+    }
+
+    .download-btn:hover {
+        background-color: #0a4530;
+        transform: translateY(-1px);
+    }
+
+    .upload-label {
+        background-color: #f6811f;
+        color: white;
+        cursor: pointer;
+    }
+
+    .upload-label:hover {
+        background-color: #d96e1a;
+        transform: translateY(-1px);
+    }
+
+    .file-input {
+        display: none;
+    }
+
+    .selected-file {
+        margin: 1rem 0;
+        padding: 0.8rem;
+        background: rgba(255, 255, 255, 0.9);
+        border: 2px dashed #0c5435;
+        border-radius: 8px;
+        text-align: center;
+        color: #2c3e50;
+    }
+
+    .submit-btn {
+        width: 100%;
+        background-color: #0c5435;
+        color: white;
+        padding: 1rem;
+        border-radius: 8px;
+        font-size: 1.1rem;
+        transition: all 0.3s ease;
+    }
+
+    .submit-btn:hover {
+        background-color: #f6811f;
+        transform: translateY(-1px);
+    }
+
+    .submit-btn:disabled {
+        background-color: #95a5a6;
+        cursor: not-allowed;
+    }
+
+    .error-box {
+        padding: 1rem;
+        background: #ffebee;
+        border: 2px solid #c62828;
+        border-radius: 8px;
+        margin-bottom: 1.5rem;
+        color: #c62828;
+    }
+
+    .error-box ul {
+        margin: 0;
+        padding-left: 1.5rem;
+    }
+
+    .alert {
+        padding: 1rem;
+        border-radius: 8px;
+        margin-bottom: 1.5rem;
+        display: none;
+        animation: fadeIn 0.3s ease-in-out;
+    }
+
+    .alert-success {
+        background-color: #e8f5e9;
+        border: 2px solid #4caf50;
+        color: #2e7d32;
+    }
+
+    .alert-error {
+        background-color: #ffebee;
+        border: 2px solid #c62828;
+        color: #c62828;
+    }
+
+    @keyframes fadeIn {
+        from { opacity: 0; transform: translateY(-10px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+
+    .loading-spinner {
+        display: inline-block;
+        width: 24px;
+        height: 24px;
+        border: 3px solid rgba(255,255,255,.3);
+        border-radius: 50%;
+        border-top-color: #fff;
+        animation: spin 1s ease-in-out infinite;
+        margin-right: 10px;
+    }
+
+    @keyframes spin {
+        to { transform: rotate(360deg); }
+    }
+
+    .close-btn {
+        float: right;
+        font-weight: bold;
+        cursor: pointer;
+        font-size: 18px;
+    }
+</style>
+
+<div class="bulk-container">
+    <h1 class="bulk-header">📦 Bulk Reimbursement Claims</h1>
+    
+    <!-- Alert Messages -->
+    <div id="success-alert" class="alert alert-success">
+        <span class="close-btn">&times;</span>
+        <strong>Success!</strong> <span id="success-message"></span>
+    </div>
+    
+    <div id="error-alert" class="alert alert-error">
+        <span class="close-btn">&times;</span>
+        <strong>Error!</strong> <span id="error-message"></span>
+    </div>
+    
+    <div id="error-details" class="error-box" style="display: none;">
+        <strong>Validation Errors:</strong>
+        <ul id="error-list"></ul>
+    </div>
+
+    {% if success_message %}
+    <div class="alert alert-success" style="display: block;">
+        <span class="close-btn">&times;</span>
+        <strong>Success!</strong> {{ success_message }}
+    </div>
+    {% endif %}
+    
+    {% if error_message %}
+    <div class="alert alert-error" style="display: block;">
+        <span class="close-btn">&times;</span>
+        <strong>Error!</strong> {{ error_message }}
+    </div>
+    {% endif %}
+    
+    {% if error_details %}
+    <div class="error-box">
+        <strong>Validation Errors:</strong>
+        <ul>
+            {% for error in error_details %}
+                <li>{{ error }}</li>
+            {% endfor %}
+        </ul>
+    </div>
+    {% endif %}
+    
+    <form id="upload-form" method="post" enctype="multipart/form-data">
+        {% csrf_token %}
+        
+        <div class="file-actions">
+            <a href="{% url 'download_reim_sample_sheet' %}" class="btn download-btn" download>
+                ⬇️ Download Sample
+            </a>
+            
+            <label for="file-upload" class="btn upload-label">
+                📁 Choose File
+                <input type="file" 
+                       id="file-upload" 
+                       name="csv_file" 
+                       class="file-input" 
+                       accept=".csv,.xlsx,.xls"
+                       required>
+            </label>
+        </div>
+
+        <div id="selected-file" class="selected-file">
+            No file selected
+        </div>
+
+        <button type="submit" 
+                class="submit-btn" 
+                id="submit-btn" 
+                disabled>
+            <span id="submit-text">🚀 Upload & Process</span>
+            <span id="loading-spinner" class="loading-spinner" style="display: none;"></span>
+        </button>
+    </form>
+</div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const fileInput = document.getElementById('file-upload');
+        const selectedFileDiv = document.getElementById('selected-file');
+        const submitBtn = document.getElementById('submit-btn');
+        const uploadForm = document.getElementById('upload-form');
+        const loadingSpinner = document.getElementById('loading-spinner');
+        const submitText = document.getElementById('submit-text');
+        
+        // Close alert buttons
+        document.querySelectorAll('.close-btn').forEach(function(btn) {
+            btn.addEventListener('click', function() {
+                this.parentElement.style.display = 'none';
+            });
+        });
+
+        fileInput.addEventListener('change', function(e) {
+            if (e.target.files.length > 0) {
+                selectedFileDiv.textContent = '📄 Selected: ' + e.target.files[0].name;
+                selectedFileDiv.style.borderColor = '#0c5435';
+                submitBtn.disabled = false;
+            } else {
+                selectedFileDiv.textContent = 'No file selected';
+                selectedFileDiv.style.borderColor = '#0c5435';
+                submitBtn.disabled = true;
+            }
+        });
+        
+        // Handle form submission with AJAX
+        uploadForm.addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            // Show loading state
+            submitBtn.disabled = true;
+            loadingSpinner.style.display = 'inline-block';
+            submitText.textContent = 'Processing...';
+            
+            // Hide previous alerts
+            document.getElementById('success-alert').style.display = 'none';
+            document.getElementById('error-alert').style.display = 'none';
+            document.getElementById('error-details').style.display = 'none';
+            
+            const formData = new FormData(this);
+            
+            fetch(window.location.href, {
+                method: 'POST',
+                body: formData,
+                headers: {
+                    'X-Requested-With': 'XMLHttpRequest',
+                },
+                credentials: 'same-origin'
+            })
+            .then(response => response.json())
+            .then(data => {
+                // Reset loading state
+                submitBtn.disabled = false;
+                loadingSpinner.style.display = 'none';
+                submitText.textContent = '🚀 Upload & Process';
+                
+                if (data.success) {
+                    // Success case
+                    document.getElementById('success-message').textContent = data.message;
+                    document.getElementById('success-alert').style.display = 'block';
+                    
+                    // Reset form
+                    fileInput.value = '';
+                    selectedFileDiv.textContent = 'No file selected';
+                    submitBtn.disabled = true;
+                } else {
+                    // Error case
+                    if (data.message) {
+                        document.getElementById('error-message').textContent = data.message;
+                        document.getElementById('error-alert').style.display = 'block';
+                    }
+                    
+                    // Display detailed errors if available
+                    if (data.errors && data.errors.length > 0) {
+                        const errorList = document.getElementById('error-list');
+                        errorList.innerHTML = '';
+                        
+                        data.errors.forEach(error => {
+                            const li = document.createElement('li');
+                            li.textContent = error;
+                            errorList.appendChild(li);
+                        });
+                        
+                        document.getElementById('error-details').style.display = 'block';
+                    }
+                }
+            })
+            .catch(error => {
+                // Reset loading state
+                submitBtn.disabled = false;
+                loadingSpinner.style.display = 'none';
+                submitText.textContent = '🚀 Upload & Process';
+                
+                // Show error
+                document.getElementById('error-message').textContent = 'Network error occurred. Please try again.';
+                document.getElementById('error-alert').style.display = 'block';
+                console.error('Error:', error);
+            });
+        });
+    });
+</script>
+
+{% endblock content %}
