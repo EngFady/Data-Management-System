@@ -1,0 +1,134 @@
+{% extends "arcapp/base.html" %}
+{% block content %}
+
+<style>
+    /* Keep all existing CSS styles identical to box_delete.html */
+    .update-container {
+        background-image: linear-gradient(#0cb946, #f8f8f8);
+        color: #020202;
+        padding: 2rem;
+        border: 2px solid #0c5435;
+        border-radius: 12px;
+        box-shadow: 0 8px 24px rgba(12, 84, 53, 0.2);
+        max-width: 500px;
+        margin: 50px auto;
+        transition: transform 0.3s ease;
+    }
+
+    .update-container:hover {
+        transform: translateY(-2px);
+    }
+
+    .form-group {
+        margin-bottom: 1.5rem;
+        position: relative;
+    }
+
+    label {
+        display: block;
+        margin-bottom: 0.5rem;
+        color: #0c5435;
+        font-weight: 600;
+        font-size: 1.1rem;
+    }
+
+    input {
+        width: 100%;
+        padding: 0.8rem;
+        border: 2px solid #0c5435;
+        border-radius: 8px;
+        background: rgba(255, 255, 255, 0.9);
+        color: #2c3e50;
+        font-size: 1rem;
+        transition: all 0.3s ease;
+    }
+
+    input:focus {
+        outline: none;
+        border-color: #f6811f;
+        box-shadow: 0 4px 12px rgba(246, 129, 31, 0.25);
+    }
+
+    button {
+        width: 100%;
+        padding: 1rem;
+        background-color: #0c5435;
+        color: white;
+        border: none;
+        border-radius: 8px;
+        font-size: 1.1rem;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        margin-top: 1rem;
+    }
+
+    button:hover {
+        background-color: #f6811f;
+        transform: translateY(-1px);
+    }
+
+    .message {
+        padding: 1rem;
+        border-radius: 8px;
+        margin-top: 1.5rem;
+        text-align: center;
+    }
+
+    .success {
+        background-color: #e8f5e9;
+        color: #2e7d32;
+        border: 2px solid #2e7d32;
+    }
+
+    .error {
+        background-color: #ffebee;
+        color: #c62828;
+        border: 2px solid #c62828;
+    }
+    
+    .delete-warning {
+        color: #ff4444;
+        font-weight: bold;
+        text-align: center;
+        margin: 1.5rem 0;
+        padding: 1rem;
+        border: 2px solid #ff4444;
+        border-radius: 8px;
+        background: rgba(255, 68, 68, 0.1);
+    }
+</style>
+
+<div class="update-container">
+    <form method="POST">
+        {% csrf_token %}
+        
+        <h1>🗑️ Delete Insurance Policy</h1>
+        <div class="delete-warning">
+            ⚠️ WARNING: This action is permanent and cannot be undone!
+        </div>
+
+        <div class="form-group">
+            <label for="PolicyId">Enter Policy ID to Delete:</label>
+            <input type="text" 
+                   id="PolicyId"
+                   name="PolicyId" 
+                   placeholder="Enter Policy ID"
+                   required>
+        </div>
+        <button type="submit" name="delete">Delete Policy 🗑️</button>
+    </form>
+
+    {% if success_message %}
+    <div class="message success">
+        {{ success_message }}
+    </div>
+    {% endif %}
+
+    {% if error_message %}
+    <div class="message error">
+        {{ error_message }}
+    </div>
+    {% endif %}
+</div>
+
+{% endblock %}

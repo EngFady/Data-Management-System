@@ -1,0 +1,187 @@
+{% extends "arcapp/base.html" %}
+{% block content %}
+
+<style>
+    .update-container {
+        background-image: linear-gradient(#0cb946, #f8f8f8);
+        color: #020202;
+        padding: 2rem;
+        border: 2px solid #0c5435;
+        border-radius: 12px;
+        box-shadow: 0 8px 24px rgba(12, 84, 53, 0.2);
+        max-width: 500px;
+        margin: 50px auto;
+        transition: transform 0.3s ease;
+    }
+
+    .update-container:hover {
+        transform: translateY(-2px);
+    }
+
+    .form-group {
+        margin-bottom: 1.5rem;
+        position: relative;
+    }
+
+    label {
+        display: block;
+        margin-bottom: 0.5rem;
+        color: #0c5435;
+        font-weight: 600;
+        font-size: 1.1rem;
+    }
+
+    input {
+        width: 100%;
+        padding: 0.8rem;
+        border: 2px solid #0c5435;
+        border-radius: 8px;
+        background: rgba(255, 255, 255, 0.9);
+        color: #2c3e50;
+        font-size: 1rem;
+        transition: all 0.3s ease;
+    }
+
+    input:focus {
+        outline: none;
+        border-color: #f6811f;
+        box-shadow: 0 4px 12px rgba(246, 129, 31, 0.25);
+    }
+
+    button {
+        width: 100%;
+        padding: 1rem;
+        background-color: #0c5435;
+        color: white;
+        border: none;
+        border-radius: 8px;
+        font-size: 1.1rem;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        margin-top: 1rem;
+    }
+
+    button:hover {
+        background-color: #f6811f;
+        transform: translateY(-1px);
+    }
+
+    .message {
+        padding: 1rem;
+        border-radius: 8px;
+        margin-top: 1.5rem;
+        text-align: center;
+    }
+
+    .success {
+        background-color: #e8f5e9;
+        color: #2e7d32;
+        border: 2px solid #2e7d32;
+    }
+
+    .error {
+        background-color: #ffebee;
+        color: #c62828;
+        border: 2px solid #c62828;
+    }
+
+    .current-info {
+        background: rgba(255, 255, 255, 0.95);
+        padding: 1.5rem;
+        border-radius: 8px;
+        margin: 1.5rem 0;
+        border: 2px solid #0c5435;
+    }
+</style>
+
+<div class="update-container">
+    <form method="POST">
+        {% csrf_token %}
+        
+        {% if not box %}
+        <!-- Search Form -->
+        <div class="form-group">
+            <h1>Update Box Information</h1>
+            <label for="current_box_number">Enter Current Box Number:</label>
+            <!-- <input type="text" 
+                   name="current_box_number" 
+                   placeholder="Enter 6-digit box number"
+                   pattern="\d{6}"
+                   title="Please enter a 6-digit box number"
+                   required> -->
+
+
+
+<input type="text" 
+       name="current_box_number" 
+       placeholder="Enter box number"
+       required>
+        </div>
+        <button type="submit" name="search">Search Box 🔍</button>
+
+        {% else %}
+        <!-- Update Form -->
+        <input type="text" name="box_id" value="{{ box.id }}" hidden>
+        
+        <div class="current-info">
+            <p><strong>📦 Current Box Number:</strong> {{ box.box_number }}</p>
+        </div>
+
+        <div class="form-group">
+            <label for="new_box_number">New Box Number:</label>
+            <input type="text" 
+                   name="new_box_number" 
+                   value="{{ box.box_number }}"
+                   required>
+        </div>
+
+        <div class="form-group">
+            <label for="new_box_type">New Box Type:</label>
+            <input type="text" 
+                   name="new_box_type" 
+                   value="{{ box.box_type }}"
+                   required>
+        </div>
+
+        <div class="form-group">
+            <label for="new_box_location">New Box Location:</label>
+            <input type="text" 
+                   name="new_box_location" 
+                   value="{{ box.box_location }}"
+                   required>
+        </div>
+
+        {% comment %} <div class="form-group">
+            <label for="new_box_status">New Box status:</label>
+            <input type="text" 
+                   name="new_box_status" 
+                   value="{{ box.box_status }}"
+                   required>
+        </div> {% endcomment %}
+
+        <div class="form-group">
+            <label for="new_insurance_company">New Insurance Company:</label>
+            <input type="text" 
+                   name="new_insurance_company" 
+                   value="{{ box.insurance_company }}">
+        </div>
+
+        <button type="submit" name="update">Update Box Details ✏️</button>
+        {% endif %}
+    </form>
+
+    <!-- Messages -->
+    {% if success_message %}
+    <div class="message success">
+        {{ success_message }}
+    </div>
+    {% endif %}
+
+    {% if error_message %}
+    <div class="message error">
+        {{ error_message }}
+    </div>
+    {% endif %}
+</div>
+
+{% endblock %}

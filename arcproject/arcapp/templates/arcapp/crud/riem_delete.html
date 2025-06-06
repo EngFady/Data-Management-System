@@ -1,0 +1,202 @@
+{% extends "arcapp/base.html" %}
+{% block title %}Reimbursement Delete{% endblock %}
+
+{% block content %}
+<style>
+    .delete-container {
+        background-image: linear-gradient(#0cb946, #f8f8f8);
+        color: #020202;
+        padding: 2rem;
+        border: 2px solid #0c5435;
+        border-radius: 12px;
+        box-shadow: 0 8px 24px rgba(12, 84, 53, 0.2);
+        max-width: 600px;
+        margin: 50px auto;
+        transition: transform 0.3s ease;
+        position: relative;
+    }
+
+    .delete-container:hover {
+        transform: translateY(-2px);
+    }
+
+    /* Notification Styles */
+    .notification {
+        position: fixed;
+        top: 20px;
+        left: 50%;
+        transform: translateX(-50%);
+        padding: 1rem 2rem;
+        border-radius: 8px;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+        z-index: 1000;
+        text-align: center;
+        font-weight: 600;
+        font-size: 1.1rem;
+        animation: slideDown 0.5s ease-out forwards;
+        min-width: 300px;
+        max-width: 80%;
+    }
+
+    .notification.success {
+        background-color: #e8f5e9;
+        color: #2e7d32;
+        border: 2px solid #2e7d32;
+    }
+
+    .notification.error {
+        background-color: #ffebee;
+        color: #c62828;
+        border: 2px solid #c62828;
+    }
+
+    @keyframes slideDown {
+        0% {
+            transform: translate(-50%, -100px);
+            opacity: 0;
+        }
+        100% {
+            transform: translate(-50%, 0);
+            opacity: 1;
+        }
+    }
+
+    /* Close button for notification */
+    .close-notification {
+        position: absolute;
+        right: 10px;
+        top: 10px;
+        cursor: pointer;
+        font-size: 1.2rem;
+        color: inherit;
+    }
+
+    h1, h2 {
+        text-align: center;
+        color: #0c5435;
+        margin-bottom: 1.5rem;
+        border-bottom: 2px solid #0c5435;
+        padding-bottom: 0.5rem;
+    }
+
+    .form-group {
+        margin-bottom: 1.5rem;
+        position: relative;
+    }
+
+    label {
+        display: block;
+        margin-bottom: 0.5rem;
+        color: #0c5435;
+        font-weight: 600;
+        font-size: 1.1rem;
+    }
+
+    input {
+        width: 100%;
+        padding: 0.8rem;
+        border: 2px solid #0c5435;
+        border-radius: 8px;
+        background: rgba(255, 255, 255, 0.9);
+        color: #2c3e50;
+        font-size: 1rem;
+        transition: all 0.3s ease;
+    }
+
+    input:focus {
+        outline: none;
+        border-color: #f6811f;
+        box-shadow: 0 4px 12px rgba(246, 129, 31, 0.25);
+    }
+
+    .btn-danger {
+        width: 100%;
+        padding: 1rem;
+        background-color: #dc3545;
+        color: white;
+        border: none;
+        border-radius: 8px;
+        font-size: 1.1rem;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        margin-top: 1rem;
+    }
+
+    .btn-danger:hover {
+        background-color: #c82333;
+        transform: translateY(-1px);
+    }
+
+    .warning-message {
+        background-color: rgba(255, 248, 225, 0.9);
+        border: 2px solid #ff9800;
+        border-radius: 8px;
+        padding: 1rem;
+        margin-bottom: 1.5rem;
+        text-align: center;
+        color: #e65100;
+        font-weight: bold;
+    }
+</style>
+
+<!-- Top notification alert -->
+{% if success_message %}
+<div id="notification" class="notification success">
+    {{ success_message }}
+    <span class="close-notification" onclick="closeNotification()">✕</span>
+</div>
+{% endif %}
+
+{% if error_message %}
+<div id="notification" class="notification error">
+    {{ error_message }}
+    <span class="close-notification" onclick="closeNotification()">✕</span>
+</div>
+{% endif %}
+
+<div class="delete-container">
+    <h1>🗑️ Delete Reimbursement Record</h1>
+    
+    <div class="warning-message">
+        <p>⚠️ Warning: This action cannot be undone. Please confirm the claim code carefully.</p>
+    </div>
+
+    <!-- Delete Form -->
+    <form method="POST" class="delete-form">
+        {% csrf_token %}
+        <div class="form-group">
+            <label for="claim_code">📝 Claim Code:</label>
+            <input type="text" id="claim_code" name="claim_code" placeholder="Enter Claim Code to delete" required>
+        </div>
+        <button type="submit" name="delete" class="btn btn-danger">Delete Reimbursement Claim 🗑️</button>
+    </form>
+</div>
+
+<script>
+    // Auto-hide notification after 5 seconds
+    window.onload = function() {
+        var notification = document.getElementById('notification');
+        if (notification) {
+            setTimeout(function() {
+                notification.style.opacity = '0';
+                notification.style.transition = 'opacity 0.5s ease';
+                setTimeout(function() {
+                    notification.style.display = 'none';
+                }, 500);
+            }, 5000);
+        }
+    };
+
+    // Function to close notification manually
+    function closeNotification() {
+        var notification = document.getElementById('notification');
+        if (notification) {
+            notification.style.opacity = '0';
+            notification.style.transition = 'opacity 0.5s ease';
+            setTimeout(function() {
+                notification.style.display = 'none';
+            }, 500);
+        }
+    }
+</script>
+{% endblock content %}

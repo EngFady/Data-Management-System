@@ -1,0 +1,661 @@
+{% extends "arcapp/base.html" %}
+{% load static %}
+
+{% block extra_css %}
+<style>
+    .update-container {
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 20px;
+    }
+
+    .page-header {
+        background: linear-gradient(135deg, #0c5435 0%, #1a7548 100%);
+        color: white;
+        padding: 30px;
+        border-radius: 15px;
+        margin-bottom: 30px;
+        box-shadow: 0 8px 25px rgba(12, 84, 53, 0.3);
+        position: relative;
+        overflow: hidden;
+    }
+
+    .page-header::before {
+        content: '';
+        position: absolute;
+        top: -50%;
+        right: -50%;
+        width: 200%;
+        height: 200%;
+        background: radial-gradient(circle, rgba(246, 129, 31, 0.1) 0%, transparent 70%);
+        transform: rotate(45deg);
+    }
+
+    .page-header h1 {
+        margin: 0;
+        font-size: 2.5rem;
+        font-weight: 600;
+        position: relative;
+        z-index: 2;
+    }
+
+    .page-header .subtitle {
+        margin: 10px 0 0 0;
+        font-size: 1.1rem;
+        opacity: 0.9;
+        position: relative;
+        z-index: 2;
+    }
+
+    .notification {
+        position: fixed;
+        top: 20px;
+        left: 50%;
+        transform: translateX(-50%);
+        padding: 15px 25px;
+        border-radius: 12px;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+        z-index: 1000;
+        text-align: center;
+        font-weight: 600;
+        font-size: 1.1rem;
+        animation: slideDown 0.5s ease-out forwards;
+        min-width: 300px;
+        max-width: 80%;
+    }
+
+    .notification.success {
+        background: linear-gradient(135deg, #d4edda 0%, #c3e6cb 100%);
+        color: #155724;
+        border: 2px solid #28a745;
+    }
+
+    .notification.error {
+        background: linear-gradient(135deg, #f8d7da 0%, #f5c6cb 100%);
+        color: #721c24;
+        border: 2px solid #dc3545;
+    }
+
+    @keyframes slideDown {
+        0% {
+            transform: translate(-50%, -100px);
+            opacity: 0;
+        }
+        100% {
+            transform: translate(-50%, 0);
+            opacity: 1;
+        }
+    }
+
+    .close-notification {
+        position: absolute;
+        right: 15px;
+        top: 50%;
+        transform: translateY(-50%);
+        cursor: pointer;
+        font-size: 1.3rem;
+        color: inherit;
+        opacity: 0.7;
+        transition: opacity 0.3s ease;
+    }
+
+    .close-notification:hover {
+        opacity: 1;
+    }
+
+    .search-card, .update-card {
+        background: white;
+        border-radius: 15px;
+        padding: 30px;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+        margin-bottom: 30px;
+        border: 2px solid #f0f0f0;
+        transition: all 0.3s ease;
+    }
+
+    .search-card:hover, .update-card:hover {
+        box-shadow: 0 15px 40px rgba(12, 84, 53, 0.15);
+        border-color: #0c5435;
+    }
+
+    .search-form, .update-form {
+        display: flex;
+        flex-direction: column;
+        gap: 20px;
+    }
+
+    .form-group {
+        position: relative;
+    }
+
+    .form-label {
+        display: block;
+        margin-bottom: 8px;
+        font-weight: 600;
+        color: #0c5435;
+        font-size: 1.1rem;
+    }
+
+    .form-control {
+        width: 100%;
+        padding: 15px 20px;
+        border: 2px solid #e0e0e0;
+        border-radius: 10px;
+        font-size: 1rem;
+        transition: all 0.3s ease;
+        background: #fafafa;
+        box-sizing: border-box;
+    }
+
+    .form-control:focus {
+        outline: none;
+        border-color: #0c5435;
+        background: white;
+        box-shadow: 0 0 0 3px rgba(12, 84, 53, 0.1);
+    }
+
+    .form-control[readonly] {
+        background: #f8f9fa;
+        color: #6c757d;
+        cursor: not-allowed;
+    }
+
+    .form-grid {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 20px;
+        margin-top: 20px;
+    }
+
+    .search-btn, .update-btn {
+        background: linear-gradient(135deg, #0c5435 0%, #1a7548 100%);
+        color: white;
+        border: none;
+        padding: 15px 40px;
+        border-radius: 10px;
+        font-size: 1.1rem;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        box-shadow: 0 5px 15px rgba(12, 84, 53, 0.3);
+        position: relative;
+        overflow: hidden;
+    }
+
+    .search-btn::before, .update-btn::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: -100%;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+        transition: left 0.5s;
+    }
+
+    .search-btn:hover::before, .update-btn:hover::before {
+        left: 100%;
+    }
+
+    .search-btn:hover, .update-btn:hover {
+        background: linear-gradient(135deg, #1a7548 0%, #f6811f 100%);
+        transform: translateY(-2px);
+        box-shadow: 0 8px 25px rgba(12, 84, 53, 0.4);
+    }
+
+    .search-btn i, .update-btn i {
+        margin-right: 8px;
+    }
+
+    .current-info {
+        background: linear-gradient(135deg, #fff3cd 0%, #ffeaa7 100%);
+        color: #856404;
+        padding: 20px;
+        border-radius: 12px;
+        margin: 20px 0;
+        border: 2px solid #f6811f;
+        text-align: center;
+        font-weight: 600;
+        font-size: 1.2rem;
+        position: relative;
+        overflow: hidden;
+    }
+
+    .current-info::before {
+        content: '';
+        position: absolute;
+        top: -50%;
+        right: -50%;
+        width: 200%;
+        height: 200%;
+        background: radial-gradient(circle, rgba(246, 129, 31, 0.1) 0%, transparent 70%);
+        transform: rotate(45deg);
+    }
+
+    .current-info p {
+        margin: 0;
+        position: relative;
+        z-index: 2;
+    }
+
+    .icon-badge {
+        background: rgba(246, 129, 31, 0.1);
+        color: #f6811f;
+        padding: 8px;
+        border-radius: 50%;
+        margin-right: 10px;
+        font-size: 1.1rem;
+    }
+
+    .animate-fade-in {
+        animation: fadeIn 0.5s ease-in;
+    }
+
+    @keyframes fadeIn {
+        from { opacity: 0; transform: translateY(20px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+
+    @media (max-width: 992px) {
+        .form-grid {
+            grid-template-columns: repeat(2, 1fr);
+        }
+        
+        .page-header h1 {
+            font-size: 2rem;
+        }
+    }
+
+    @media (max-width: 768px) {
+        .update-container {
+            padding: 15px;
+        }
+        
+        .page-header {
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+        
+        .page-header h1 {
+            font-size: 1.8rem;
+        }
+        
+        .search-card, .update-card {
+            padding: 20px;
+        }
+        
+        .form-grid {
+            grid-template-columns: 1fr;
+        }
+        
+        .notification {
+            min-width: 280px;
+            padding: 12px 20px;
+        }
+    }
+
+    /* Specific styling for readonly fields */
+    .readonly-section {
+        background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+        border: 2px solid #dee2e6;
+        border-radius: 12px;
+        padding: 20px;
+        margin: 20px 0;
+    }
+
+    .readonly-section .form-label {
+        color: #6c757d;
+    }
+
+    .section-title {
+        color: #0c5435;
+        font-size: 1.3rem;
+        font-weight: 600;
+        margin-bottom: 20px;
+        padding-bottom: 10px;
+        border-bottom: 2px solid #f6811f;
+        display: flex;
+        align-items: center;
+    }
+
+    .section-title i {
+        margin-right: 10px;
+        color: #f6811f;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+{% if success_message %}
+<div id="notification" class="notification success animate-fade-in">
+    <i class="fas fa-check-circle"></i> {{ success_message }}
+    <span class="close-notification" onclick="closeNotification()">✕</span>
+</div>
+{% endif %}
+
+{% if error_message %}
+<div id="notification" class="notification error animate-fade-in">
+    <i class="fas fa-exclamation-triangle"></i> {{ error_message }}
+    <span class="close-notification" onclick="closeNotification()">✕</span>
+</div>
+{% endif %}
+
+<div class="update-container">
+    <!-- Page Header -->
+    <div class="page-header">
+        <h1><i class="fas fa-edit"></i> Provider Claim Update</h1>
+        <p class="subtitle">Search and update provider claim records with comprehensive details</p>
+    </div>
+
+    {% if not provider_claim %}
+    <!-- Search Form -->
+    <div class="search-card animate-fade-in">
+        <form method="POST" class="search-form">
+            {% csrf_token %}
+            <div class="form-group">
+                <label for="current_claim_code" class="form-label">
+                    <i class="icon-badge fas fa-barcode"></i>Claim Code
+                </label>
+                <input type="text" 
+                       id="current_claim_code" 
+                       name="current_claim_code" 
+                       class="form-control" 
+                       placeholder="Enter claim code to search for update..."
+                       required>
+            </div>
+            <button type="submit" name="search" class="search-btn">
+                <i class="fas fa-search"></i> Search Provider Claim
+            </button>
+        </form>
+    </div>
+    {% else %}
+    <!-- Update Form -->
+    <div class="update-card animate-fade-in">
+        <form method="POST" class="update-form">
+            {% csrf_token %}
+            <input type="hidden" name="claim_id" value="{{ provider_claim.id }}">
+            
+            <!-- Current Claim Info -->
+            <div class="current-info">
+                <p><i class="fas fa-barcode"></i> Current Claim Code: <strong>{{ provider_claim.ClaimCode }}</strong></p>
+            </div>
+
+            <!-- Basic Information Section -->
+            <div class="section-title">
+                <i class="fas fa-info-circle"></i> Basic Information
+            </div>
+            
+            <div class="form-grid">
+                <div class="form-group">
+                    <label for="new_claim_code" class="form-label">
+                        <i class="icon-badge fas fa-barcode"></i>Claim Code
+                    </label>
+                    <input type="text" id="new_claim_code" name="new_claim_code" class="form-control" value="{{ provider_claim.ClaimCode }}" required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="new_box_number" class="form-label">
+                        <i class="icon-badge fas fa-archive"></i>Box Number
+                    </label>
+                    <input type="text" id="new_box_number" name="new_box_number" class="form-control" value="{{ provider_claim.box_number }}" required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="new_policy_id" class="form-label">
+                        <i class="icon-badge fas fa-id-card"></i>Policy ID
+                    </label>
+                    <input type="text" id="new_policy_id" name="new_policy_id" class="form-control" value="{{ provider_claim.PolicyId }}">
+                </div>
+            </div>
+
+            <!-- Client and Member Information -->
+            <div class="readonly-section">
+                <div class="section-title">
+                    <i class="fas fa-users"></i> Client & Member Information (Read Only)
+                </div>
+                
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label for="new_client_id" class="form-label">
+                            <i class="icon-badge fas fa-user-tie"></i>Client ID
+                        </label>
+                        <input type="text" id="new_client_id" name="new_client_id" class="form-control" value="{{ provider_claim.ClientId }}" readonly>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="new_client_name" class="form-label">
+                            <i class="icon-badge fas fa-building"></i>Client Name
+                        </label>
+                        <input type="text" id="new_client_name" name="new_client_name" class="form-control" value="{{ provider_claim.Client_name }}" readonly>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="new_member_name" class="form-label">
+                            <i class="icon-badge fas fa-user"></i>Member Name
+                        </label>
+                        <input type="text" id="new_member_name" name="new_member_name" class="form-control" value="{{ provider_claim.Member_name }}">
+                    </div>
+                </div>
+            </div>
+
+            <!-- Provider Information -->
+            <div class="section-title">
+                <i class="fas fa-hospital"></i> Provider Information
+            </div>
+            
+            <div class="form-grid">
+                <div class="form-group">
+                    <label for="new_provider_name" class="form-label">
+                        <i class="icon-badge fas fa-hospital-alt"></i>Provider Name
+                    </label>
+                    <input type="text" id="new_provider_name" name="new_provider_name" class="form-control" value="{{ provider_claim.Provider_name }}">
+                </div>
+            </div>
+
+            <!-- Date Information -->
+            <div class="section-title">
+                <i class="fas fa-calendar-alt"></i> Important Dates
+            </div>
+            
+            <div class="form-grid">
+                <div class="form-group">
+                    <label for="new_receive_date" class="form-label">
+                        <i class="icon-badge fas fa-calendar-plus"></i>Receive Date
+                    </label>
+                    <input type="date" id="new_receive_date" name="new_receive_date" class="form-control" value="{{ provider_claim.Receive_date|date:"Y-m-d" }}">
+                </div>
+                
+                <div class="form-group">
+                    <label for="new_issuance_date" class="form-label">
+                        <i class="icon-badge fas fa-calendar-check"></i>Issuance Date
+                    </label>
+                    <input type="date" id="new_issuance_date" name="new_issuance_date" class="form-control" value="{{ provider_claim.Issuance_date|date:"Y-m-d" }}">
+                </div>
+                
+                <div class="form-group">
+                    <label for="new_request_date" class="form-label">
+                        <i class="icon-badge fas fa-calendar"></i>Request Date
+                    </label>
+                    <input type="date" id="new_request_date" name="new_request_date" class="form-control" value="{{ provider_claim.request_date|date:"Y-m-d" }}">
+                </div>
+                
+                <div class="form-group">
+                    <label for="new_segregation_date" class="form-label">
+                        <i class="icon-badge fas fa-calendar-alt"></i>Segregation Date
+                    </label>
+                    <input type="date" id="new_segregation_date" name="new_segregation_date" class="form-control" value="{{ provider_claim.Segregation_date|date:"Y-m-d" }}">
+                </div>
+                
+                <div class="form-group">
+                    <label for="new_audit_date" class="form-label">
+                        <i class="icon-badge fas fa-search-plus"></i>Audit Date
+                    </label>
+                    <input type="date" id="new_audit_date" name="new_audit_date" class="form-control" value="{{ provider_claim.Audit_date|date:"Y-m-d" }}">
+                </div>
+                
+                <div class="form-group">
+                    <label for="new_retrieval_date" class="form-label">
+                        <i class="icon-badge fas fa-calendar-minus"></i>Retrieval Date
+                    </label>
+                    <input type="date" id="new_retrieval_date" name="new_retrieval_date" class="form-control" value="{{ provider_claim.retrieval_date|date:"Y-m-d" }}">
+                </div>
+                
+                <div class="form-group">
+                    <label for="new_return_date" class="form-label">
+                        <i class="icon-badge fas fa-undo"></i>Return Date
+                    </label>
+                    <input type="date" id="new_return_date" name="new_return_date" class="form-control" value="{{ provider_claim.return_date|date:'Y-m-d' }}">
+                </div>
+            </div>
+
+            <!-- Personnel Information -->
+            <div class="section-title">
+                <i class="fas fa-user-friends"></i> Personnel Information
+            </div>
+            
+            <div class="form-grid">
+                <div class="form-group">
+                    <label for="new_segregation_by" class="form-label">
+                        <i class="icon-badge fas fa-user-edit"></i>Segregation By
+                    </label>
+                    <input type="text" id="new_segregation_by" name="new_segregation_by" class="form-control" value="{{ provider_claim.Segregation_by }}">
+                </div>
+                
+                <div class="form-group">
+                    <label for="new_audit_by" class="form-label">
+                        <i class="icon-badge fas fa-user-check"></i>Audit By
+                    </label>
+                    <input type="text" id="new_audit_by" name="new_audit_by" class="form-control" value="{{ provider_claim.Audit_by }}">
+                </div>
+                
+                <div class="form-group">
+                    <label for="new_request_by" class="form-label">
+                        <i class="icon-badge fas fa-user-plus"></i>Request By
+                    </label>
+                    <input type="text" id="new_request_by" name="new_request_by" class="form-control" value="{{ provider_claim.request_by }}">
+                </div>
+                
+                <div class="form-group">
+                    <label for="new_return_by" class="form-label">
+                        <i class="icon-badge fas fa-user-minus"></i>Return By
+                    </label>
+                    <input type="text" id="new_return_by" name="new_return_by" class="form-control" value="{{ provider_claim.return_by }}">
+                </div>
+            </div>
+
+            <!-- Status and Financial Information -->
+            <div class="section-title">
+                <i class="fas fa-chart-line"></i> Status & Financial Information
+            </div>
+            
+            <div class="form-grid">
+                <div class="form-group">
+                    <label for="new_claim_status_str" class="form-label">
+                        <i class="icon-badge fas fa-flag"></i>Claim Status
+                    </label>
+                    <input type="text" id="new_claim_status_str" name="new_claim_status_str" class="form-control" value="{{ provider_claim.claim_status }}">
+                </div>
+                
+                <div class="form-group">
+                    <label for="new_deducted_amount" class="form-label">
+                        <i class="icon-badge fas fa-dollar-sign"></i>Deducted Amount
+                    </label>
+                    <input type="number" id="new_deducted_amount" name="new_deducted_amount" class="form-control" value="{{ provider_claim.DeductedAmount }}" step="0.01">
+                </div>
+                
+                <div class="form-group">
+                    <label for="new_batch_id" class="form-label">
+                        <i class="icon-badge fas fa-layer-group"></i>Batch ID
+                    </label>
+                    <input type="text" id="new_batch_id" name="new_batch_id" class="form-control" value="{{ provider_claim.batchID }}">
+                </div>
+                
+                <div class="form-group">
+                    <label for="new_claimscan" class="form-label">
+                        <i class="icon-badge fas fa-scan"></i>Claim Scan
+                    </label>
+                    <input type="text" id="new_claimscan" name="new_claimscan" class="form-control" value="{{ provider_claim.claimscan }}">
+                </div>
+            </div>
+
+            <!-- Box Information (Read Only) -->
+            <div class="readonly-section">
+                <div class="section-title">
+                    <i class="fas fa-archive"></i> Box Information (Read Only)
+                </div>
+                
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label for="box_location" class="form-label">
+                            <i class="icon-badge fas fa-map-marker-alt"></i>Box Location
+                        </label>
+                        <input type="text" id="box_location" name="box_location_display" class="form-control" value="{{ box_location|default:'N/A' }}" readonly>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="insurance_company" class="form-label">
+                            <i class="icon-badge fas fa-shield-alt"></i>Insurance Company
+                        </label>
+                        <input type="text" id="insurance_company" name="insurance_company_display" class="form-control" value="{{ insurance_company|default:'N/A' }}" readonly>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Notes and Comments -->
+            <div class="section-title">
+                <i class="fas fa-sticky-note"></i> Notes & Comments
+            </div>
+            
+            <div class="form-grid">
+                <div class="form-group">
+                    <label for="new_note" class="form-label">
+                        <i class="icon-badge fas fa-sticky-note"></i>Note
+                    </label>
+                    <input type="text" id="new_note" name="new_note" class="form-control" value="{{ provider_claim.note }}">
+                </div>
+                
+                <div class="form-group">
+                    <label for="new_comment" class="form-label">
+                        <i class="icon-badge fas fa-comment"></i>Comment
+                    </label>
+                    <input type="text" id="new_comment" name="new_comment" class="form-control" value="{{ provider_claim.comment }}">
+                </div>
+            </div>
+
+            <button type="submit" name="update" class="update-btn">
+                <i class="fas fa-save"></i> Update Provider Claim
+            </button>
+        </form>
+    </div>
+    {% endif %}
+</div>
+
+<script>
+    // Auto-hide notification after 5 seconds
+    window.onload = function() {
+        var notification = document.getElementById('notification');
+        if (notification) {
+            setTimeout(function() {
+                notification.style.opacity = '0';
+                notification.style.transition = 'opacity 0.5s ease';
+                setTimeout(function() {
+                    notification.style.display = 'none';
+                }, 500);
+            }, 5000);
+        }
+    };
+
+    // Function to close notification manually
+    function closeNotification() {
+        var notification = document.getElementById('notification');
+        if (notification) {
+            notification.style.opacity = '0';
+            notification.style.transition = 'opacity 0.5s ease';
+            setTimeout(function() {
+                notification.style.display = 'none';
+            }, 500);
+        }
+    }
+</script>
+
+{% endblock %}

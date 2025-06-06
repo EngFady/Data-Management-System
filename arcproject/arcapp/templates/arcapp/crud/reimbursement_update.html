@@ -1,0 +1,281 @@
+{% extends "arcapp/base.html" %}
+{% block title %}Reimbursement Update{% endblock %}
+
+{% block content %}
+
+<style>
+    .update-container {
+        background-image: linear-gradient(#0cb946, #f8f8f8);
+        color: #020202;
+        padding: 2rem;
+        border: 2px solid #0c5435;
+        border-radius: 12px;
+        box-shadow: 0 8px 24px rgba(12, 84, 53, 0.2);
+        max-width: 900px;
+        margin: 50px auto;
+        transition: transform 0.3s ease;
+        position: relative;
+    }
+
+    .update-container:hover {
+        transform: translateY(-2px);
+    }
+
+    /* Notification Styles */
+    .notification {
+        position: fixed;
+        top: 20px;
+        left: 50%;
+        transform: translateX(-50%);
+        padding: 1rem 2rem;
+        border-radius: 8px;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+        z-index: 1000;
+        text-align: center;
+        font-weight: 600;
+        font-size: 1.1rem;
+        animation: slideDown 0.5s ease-out forwards;
+        min-width: 300px;
+        max-width: 80%;
+    }
+
+    .notification.success {
+        background-color: #e8f5e9;
+        color: #2e7d32;
+        border: 2px solid #2e7d32;
+    }
+
+    .notification.error {
+        background-color: #ffebee;
+        color: #c62828;
+        border: 2px solid #c62828;
+    }
+
+    @keyframes slideDown {
+        0% {
+            transform: translate(-50%, -100px);
+            opacity: 0;
+        }
+        100% {
+            transform: translate(-50%, 0);
+            opacity: 1;
+        }
+    }
+
+    /* Close button for notification */
+    .close-notification {
+        position: absolute;
+        right: 10px;
+        top: 10px;
+        cursor: pointer;
+        font-size: 1.2rem;
+        color: inherit;
+    }
+
+    h1, h2, h3 {
+        text-align: center;
+        color: #0c5435;
+        margin-bottom: 1.5rem;
+        border-bottom: 2px solid #0c5435;
+        padding-bottom: 0.5rem;
+    }
+
+    .form-group {
+        margin-bottom: 1.5rem;
+        position: relative;
+    }
+
+    .form-grid {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 1.5rem;
+    }
+
+    label {
+        display: block;
+        margin-bottom: 0.5rem;
+        color: #0c5435;
+        font-weight: 600;
+        font-size: 1.1rem;
+    }
+
+    input, select, textarea {
+        width: 100%;
+        padding: 0.8rem;
+        border: 2px solid #0c5435;
+        border-radius: 8px;
+        background: rgba(255, 255, 255, 0.9);
+        color: #2c3e50;
+        font-size: 1rem;
+        transition: all 0.3s ease;
+    }
+
+    input:focus, select:focus, textarea:focus {
+        outline: none;
+        border-color: #f6811f;
+        box-shadow: 0 4px 12px rgba(246, 129, 31, 0.25);
+    }
+
+    button {
+        width: 100%;
+        padding: 1rem;
+        background-color: #0c5435;
+        color: white;
+        border: none;
+        border-radius: 8px;
+        font-size: 1.1rem;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        margin-top: 1rem;
+    }
+
+    button:hover {
+        background-color: #f6811f;
+        transform: translateY(-1px);
+    }
+
+    .current-info {
+        background: rgba(255, 255, 255, 0.95);
+        padding: 1.5rem;
+        border-radius: 8px;
+        margin: 1.5rem 0;
+        border: 2px solid #0c5435;
+        text-align: center;
+        font-weight: bold;
+        font-size: 1.1rem;
+    }
+
+    @media (max-width: 992px) {
+        .form-grid {
+            grid-template-columns: repeat(2, 1fr);
+        }
+    }
+
+    @media (max-width: 768px) {
+        .form-grid {
+            grid-template-columns: 1fr;
+        }
+    }
+</style>
+
+<!-- Top notification alert -->
+{% if success_message %}
+<div id="notification" class="notification success">
+    {{ success_message }}
+    <span class="close-notification" onclick="closeNotification()">✕</span>
+</div>
+{% endif %}
+
+{% if error_message %}
+<div id="notification" class="notification error">
+    {{ error_message }}
+    <span class="close-notification" onclick="closeNotification()">✕</span>
+</div>
+{% endif %}
+
+<div class="update-container">
+    {% if not reimbursement_claim %}
+    <!-- Search Form -->
+    <form method="POST">
+        {% csrf_token %}
+        <h1>🔍 Update Reimbursement Claim Record</h1>
+        <div class="form-group">
+            <label for="current_claim_code">📝 Claim Code:</label>
+            <input type="text" id="current_claim_code" name="current_claim_code" placeholder="Enter Claim Code to search" required>
+        </div>
+        <button type="submit" name="search">Search Reimbursement Claim 🔍</button>
+    </form>
+    {% else %}
+    <!-- Update Form -->
+    <form method="POST">
+        {% csrf_token %}
+        <h1>✏️ Update Reimbursement Claim Information</h1>
+        
+        <!-- Hidden field to store the claim ID -->
+        <input type="hidden" name="claim_id" value="{{ reimbursement_claim.id }}">
+        
+        <div class="current-info">
+            <p>📋 Current Claim Code: {{ reimbursement_claim.Claim_Code }}</p>
+        </div>
+        
+        <div class="form-grid">
+            <div class="form-group">
+                <label for="new_box_number">📦 Box Number:</label>
+                <input type="text" id="new_box_number" name="new_box_number" value="{{ reimbursement_claim.box_number }}" required>
+            </div>
+            <div class="form-group">
+                <label for="new_claim_code">📝 Claim Code:</label>
+                <input type="text" id="new_claim_code" name="new_claim_code" value="{{ reimbursement_claim.Claim_Code }}" required>
+            </div>
+            <div class="form-group">
+                <label for="new_batch_num">🔢 Batch Number:</label>
+                <input type="text" id="new_batch_num" name="new_batch_num" value="{{ reimbursement_claim.Batch_num }}">
+            </div>
+            <div class="form-group">
+                <label for="new_batch_type">📊 Batch Type:</label>
+                <input type="text" id="new_batch_type" name="new_batch_type" value="{{ reimbursement_claim.Batch_type }}">
+            </div>
+            <div class="form-group">
+                <label for="new_english_name">🌐 English Name:</label>
+                <input type="text" id="new_english_name" name="new_english_name" value="{{ reimbursement_claim.English_name }}">
+            </div>
+            <div class="form-group">
+                <label for="new_arab_name">🔤 Arabic Name:</label>
+                <input type="text" id="new_arab_name" name="new_arab_name" value="{{ reimbursement_claim.Arab_name }}">
+            </div>
+            <div class="form-group">
+                <label for="new_payer">💳 Payer:</label>
+                <input type="text" id="new_payer" name="new_payer" value="{{ reimbursement_claim.Payer }}">
+            </div>
+            <div class="form-group">
+                <label for="new_policy">📜 Policy:</label>
+                <input type="text" id="new_policy" name="new_policy" value="{{ reimbursement_claim.Policy }}">
+            </div>
+            <div class="form-group">
+                <label for="new_hof">👨‍👩‍👧‍👦 Head of Family (HOF):</label>
+                <input type="text" id="new_hof" name="new_hof" value="{{ reimbursement_claim.Hof }}">
+            </div>
+            <div class="form-group">
+                <label for="new_audit_user">👨‍💼 Audit User:</label>
+                <input type="text" id="new_audit_user" name="new_audit_user" value="{{ reimbursement_claim.Audit_user }}">
+            </div>
+            <div class="form-group">
+                <label for="new_audit_date">🔍 Audit Date:</label>
+                <input type="date" id="new_audit_date" name="new_audit_date" value="{{ reimbursement_claim.Audit_date|date:'Y-m-d' }}">
+            </div>
+        </div>
+
+        <button type="submit" name="update">Update Reimbursement Claim ✅</button>
+    </form>
+    {% endif %}
+</div>
+
+<script>
+    // Auto-hide notification after 5 seconds
+    window.onload = function() {
+        var notification = document.getElementById('notification');
+        if (notification) {
+            setTimeout(function() {
+                notification.style.opacity = '0';
+                notification.style.transition = 'opacity 0.5s ease';
+                setTimeout(function() {
+                    notification.style.display = 'none';
+                }, 500);
+            }, 5000);
+        }
+    };
+
+    // Function to close notification manually
+    function closeNotification() {
+        var notification = document.getElementById('notification');
+        if (notification) {
+            notification.style.opacity = '0';
+            notification.style.transition = 'opacity 0.5s ease';
+            setTimeout(function() {
+                notification.style.display = 'none';
+            }, 500);
+        }
+    }
+</script>
+
+{% endblock %}

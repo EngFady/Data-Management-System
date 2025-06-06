@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Provider Segregation Management</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha3/dist/css/bootstrap.min.css">
+</head>
+<body>
+    <div class="container mt-5">
+        <h1 class="mb-4">Provider Segregation Management</h1>
+
+        <!-- Success and Error Messages -->
+        {% if success_message %}
+        <div class="alert alert-success">{{ success_message }}</div>
+        {% endif %}
+        {% if error_message %}
+        <div class="alert alert-danger">{{ error_message }}</div>
+        {% endif %}
+
+        <!-- Search Form -->
+        <form method="post" class="mb-4">
+            {% csrf_token %}
+            <div class="mb-3">
+                {{ form.claim_code.label_tag }}
+                {{ form.claim_code }}
+            </div>
+            <button type="submit" name="search" class="btn btn-primary">Search</button>
+        </form>
+
+        <!-- Claim Details -->
+        {% if claim %}
+        <h3>Claim Details</h3>
+        <table class="table table-bordered">
+            <tr><th>Claim Code</th><td>{{ claim.ClaimCode }}</td></tr>
+            <tr><th>Policy ID</th><td>{{ claim.PolicyId }}</td></tr>
+            <tr><th>Policy Name</th><td>{{ claim.policyname }}</td></tr>
+            <tr><th>Client ID</th><td>{{ claim.ClientId }}</td></tr>
+            <tr><th>Client Name</th><td>{{ claim.Client_name }}</td></tr>
+            <tr><th>Member Name</th><td>{{ claim.Member_name }}</td></tr>
+            <tr><th>Provider Name</th><td>{{ claim.Provider_name }}</td></tr>
+            <tr><th>Receive Date</th><td>{{ claim.Receive_date }}</td></tr>
+            <tr><th>Issuance Date</th><td>{{ claim.Issuance_date }}</td></tr>
+            <tr><th>Segregation Date</th><td>{{ claim.Segregation_date }}</td></tr>
+            <tr><th>Segregation By</th><td>{{ claim.Segregation_by }}</td></tr>
+            <tr><th>Audit Date</th><td>{{ claim.Audit_date }}</td></tr>
+            <tr><th>Audit By</th><td>{{ claim.Audit_by }}</td></tr>
+            <tr><th>Box Status</th><td>{{ claim.Box_status }}</td></tr>
+            <tr><th>Batch ID</th><td>{{ claim.batchID }}</td></tr>
+            <tr><th>Deducted Amount</th><td>{{ claim.DeductedAmount }}</td></tr>
+            <tr><th>Claim Scan</th><td>{{ claim.claimscan }}</td></tr>
+            <tr><th>Data Entrance Date</th><td>{{ claim.data_entrance_date }}</td></tr>
+        </table>
+
+        <!-- Update Form -->
+        <h3>Update Claim</h3>
+        <form method="post">
+            {% csrf_token %}
+            <input type="hidden" name="claim_id" value="{{ claim.id }}">
+            <div class="mb-3"><label>New Claim Code</label><input type="text" name="new_claim_code" class="form-control"></div>
+            <div class="mb-3"><label>New Box Number</label><input type="text" name="new_box_number" class="form-control"></div>
+            <div class="mb-3"><label>New Policy ID</label><input type="text" name="new_policy_id" class="form-control"></div>
+            <div class="mb-3"><label>New Policy Name</label><input type="text" name="new_policy_name" class="form-control"></div>
+            <div class="mb-3"><label>New Client ID</label><input type="text" name="new_client_id" class="form-control"></div>
+            <div class="mb-3"><label>New Client Name</label><input type="text" name="new_client_name" class="form-control"></div>
+            <div class="mb-3"><label>New Member Name</label><input type="text" name="new_member_name" class="form-control"></div>
+            <div class="mb-3"><label>New Provider Name</label><input type="text" name="new_provider_name" class="form-control"></div>
+            <div class="mb-3"><label>New Receive Date</label><input type="date" name="new_receive_date" class="form-control"></div>
+            <div class="mb-3"><label>New Issuance Date</label><input type="date" name="new_issuance_date" class="form-control"></div>
+            <div class="mb-3"><label>New Segregation Date</label><input type="date" name="new_segregation_date" class="form-control"></div>
+            <div class="mb-3"><label>New Segregation By</label><input type="text" name="new_segregation_by" class="form-control"></div>
+            <div class="mb-3"><label>New Audit Date</label><input type="date" name="new_audit_date" class="form-control"></div>
+            <div class="mb-3"><label>New Audit By</label><input type="text" name="new_audit_by" class="form-control"></div>
+            <div class="mb-3"><label>New Box Status</label><input type="text" name="new_box_status" class="form-control"></div>
+            <div class="mb-3"><label>New Batch ID</label><input type="text" name="new_batch_id" class="form-control"></div>
+            <div class="mb-3"><label>New Deducted Amount</label><input type="number" step="0.01" name="new_deducted_amount" class="form-control"></div>
+            <div class="form-check mb-3">
+                <input class="form-check-input" type="checkbox" name="new_claim_scan" id="new_claim_scan">
+                <label class="form-check-label" for="new_claim_scan">New Claim Scan</label>
+            </div>
+            <button type="submit" name="update" class="btn btn-warning">Update</button>
+        </form>
+
+
+                <!-- Delete Form -->
+                <form method="post">
+                    {% csrf_token %}
+                    <input type="hidden" name="claim_id" value="{{ claim.id }}">
+                    <button type="submit" name="delete" class="btn btn-danger">Delete</button>
+                </form>
+        {% endif %}
+    </div>
+</body>
+</html>
