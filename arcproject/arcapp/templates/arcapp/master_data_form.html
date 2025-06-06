@@ -1,0 +1,467 @@
+{% extends "arcapp/base.html" %}
+
+{% block title %}Master Data Management{% endblock %}
+
+{% block content %}
+<style>
+    .master-data-container {
+        background-image: linear-gradient(#0cb946, #f8f8f8);
+        color: #020202;
+        padding: 25px;
+        border: 1px solid #0c5435;
+        border-radius: 6px;
+        box-shadow: 0 4px 8px #0c5435;
+        width: 500px;
+        margin: 30px auto;
+    }
+
+    .master-data-container h2 {
+        color: rgb(0, 0, 0);
+        text-align: center;
+        margin-bottom: 1rem;
+        font-size: 2.0rem;
+    }
+
+    .master-data-form {
+        display: flex;
+        flex-direction: column;
+        gap: 1.5rem;
+    }
+
+    .radio-group {
+        display: flex;
+        flex-direction: column;
+        gap: 1rem;
+        margin-bottom: 1rem;
+    }
+
+    .radio-group [type="radio"] {
+        position: absolute;
+        opacity: 0;
+        width: 0;
+        height: 0;
+    }
+
+    .radio-group label {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+        padding: 1rem 1.5rem;
+        border: 2px solid #0c5435;
+        border-radius: 50px;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        background: white;
+        position: relative;
+        overflow: hidden;
+    }
+
+    .radio-group label:before {
+        content: '';
+        width: 20px;
+        height: 20px;
+        border: 2px solid #0c5435;
+        border-radius: 50%;
+        transition: all 0.3s ease;
+        box-shadow: inset 0 0 0 2px white;
+    }
+
+    .radio-group [type="radio"]:checked + label {
+        background: #e3fcec;
+        border-color: #0cb946;
+        transform: translateY(-2px);
+        box-shadow: 0 3px 10px rgba(12, 185, 70, 0.2);
+    }
+
+    .radio-group [type="radio"]:checked + label:before {
+        background: #0cb946;
+        border-color: #0cb946;
+        box-shadow: inset 0 0 0 4px white;
+    }
+
+    .radio-group label:hover {
+        background: #f0fff5;
+        transform: translateY(-2px);
+        box-shadow: 0 3px 15px rgba(12, 185, 70, 0.3);
+    }
+
+    .input-group input {
+        width: 100%;
+        padding: 0.7rem 1rem;
+        border: 1px solid #0c5435;
+        border-radius: 50px;
+        text-align: center;
+        transition: all 0.3s ease;
+        opacity: 0;
+        height: 0;
+        margin: 0 auto;
+    }
+
+    .submit-button {
+        padding: 0.6rem;
+        background-color: #007bff;
+        color: white;
+        border: none;
+        border-radius: 4px;
+        cursor: pointer;
+        width: 50%;
+        margin: 0 auto;
+        transition: background-color 0.3s;
+        display: none;
+    }
+
+    .submit-button:hover {
+        background-color: #0056b3;
+    }
+
+    .alert-message {
+        position: fixed;
+        top: -100px;
+        left: 50%;
+        transform: translateX(-50%);
+        padding: 1rem 2rem;
+        border-radius: 4px;
+        z-index: 1000;
+        transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+        opacity: 0;
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        max-width: 80%;
+    }
+
+    .alert-message.active {
+        top: 20px;
+        opacity: 1;
+    }
+
+    .alert-message.error {
+        background-color: #f8d7da;
+        color: #721c24;
+        border: 1px solid #f5c6cb;
+    }
+
+    .alert-message.success {
+        background-color: #d4edda;
+        color: #155724;
+        border: 1px solid #c3e6cb;
+    }
+
+    .alert-close {
+        background: none;
+        border: none;
+        cursor: pointer;
+        color: inherit;
+        padding-left: 1rem;
+        font-size: 1.2rem;
+    }
+
+    .option-icon {
+        width: 24px;
+        height: 24px;
+        background: #0cb946;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        font-size: 14px;
+    }
+
+    .option-text {
+        flex-grow: 1;
+        font-weight: 500;
+        color: #1a1a1a;
+    }
+
+    .existing-data-container {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+        gap: 20px;
+        max-width: 1200px;
+        margin: 30px auto;
+        padding: 0 20px;
+    }
+
+    .data-section {
+        background: #fff;
+        padding: 20px;
+        border: 1px solid #0c5435;
+        border-radius: 6px;
+        box-shadow: 0 4px 8px rgba(12, 84, 53, 0.1);
+    }
+
+    .data-section h3 {
+        color: #0c5435;
+        margin-top: 0;
+        font-size: 1.4rem;
+        text-align: center;
+    }
+
+    .data-list {
+        list-style: none;
+        padding: 0;
+        margin: 0;
+    }
+
+    .data-list li {
+        padding: 0.8rem;
+        margin: 0.5rem 0;
+        background: #f8f8f8;
+        border-radius: 4px;
+        border: 1px solid #ddd;
+    }
+
+    .no-data {
+        color: #666;
+        font-style: italic;
+        text-align: center;
+    }
+
+    @media (max-width: 768px) {
+        .existing-data-container {
+            grid-template-columns: 1fr;
+        }
+        .master-data-container {
+            width: 90%;
+        }
+    }
+</style>
+
+<div class="module-reset">
+    {% if error_message %}
+    <div class="alert-message error active">
+        {{ error_message }}
+        <button class="alert-close" onclick="this.parentElement.remove()">×</button>
+    </div>
+    {% endif %}
+
+    {% if success %}
+    <div class="alert-message success active">
+        Entry saved successfully!
+        <button class="alert-close" onclick="this.parentElement.remove()">×</button>
+    </div>
+    {% endif %}
+
+    <div class="master-data-container">
+        <h2>📦 Master Data Management 🛠️</h2>
+        
+        <form method="POST" class="master-data-form">
+            {% csrf_token %}
+            
+            <div class="radio-group">
+                {% for choice in form.field_type %}
+                    {{ choice.tag }}
+                    <label for="{{ choice.id_for_label }}">
+                        <span class="option-icon">
+                            {% if choice.data.value == 'box_type' %}📦
+                            {% elif choice.data.value == 'box_location' %}📍
+                            {% elif choice.data.value == 'claim_status'%}📜
+                            {% elif choice.data.value == 'audit_by' %}👤
+                            {% elif choice.data.value == 'return_by_usr' %}👤
+                            {% elif choice.data.value == 'sgeregation_by_usr' %}👤
+                            {% else %}🏢{% endif %}
+                        </span>
+                        <span class="option-text">{{ choice.choice_label }}</span>
+                    </label>
+                {% endfor %}
+            </div>
+
+            <div class="input-group">
+                {{ form.field_value }}
+            </div>
+            
+            <button type="submit" class="submit-button">💾 Save Entry</button>
+        </form>
+    </div>
+
+    <div class="existing-data-container">
+        <div class="data-section">
+            <h3>📦 Existing Box Types</h3>
+            {% if box_types %}
+                <ul class="data-list">
+                    {% for bt in box_types %}
+                    <li>
+                        {{ bt.name }}
+                        <span class="data-details">- Created by {{ bt.created_by.username|default:"System" }} on {{ bt.data_entrance_date|date:"M d, Y" }}</span>
+                    </li>
+                    {% endfor %}
+                </ul>
+            {% else %}
+                <p class="no-data">No box types registered</p>
+            {% endif %}
+        </div>
+
+        <div class="data-section">
+            <h3>📍 Existing Box Locations</h3>
+            {% if box_locations %}
+                <ul class="data-list">
+                    {% for bl in box_locations %}
+                    <li>
+                        {{ bl.name }}
+                        <span class="data-details">- Created by {{ bl.created_by.username|default:"System" }} on {{ bl.data_entrance_date|date:"M d, Y" }}</span>
+                    </li>
+                    {% endfor %}
+                </ul>
+            {% else %}
+                <p class="no-data">No box locations registered</p>
+            {% endif %}
+        </div>
+
+
+
+
+
+
+        <div class="data-section">
+            <h3>📜 Existing Claim Status</h3>
+            {% if claim_status %}
+                <ul class="data-list">
+                    {% for cs in claim_status %}
+                    <li>
+                        {{ cs.name }}
+                        <span class="data-details">- Created by {{ cs.created_by.username|default:"System" }} on {{ cs.data_entrance_date|date:"M d, Y" }}</span>
+                    </li>
+                    {% endfor %}
+                </ul>
+            {% else %}
+                <p class="no-data">No Claim Statuses registered</p>
+            {% endif %}
+        </div>
+        
+        <div class="data-section">
+            <h3>🏢 Existing Insurance Companies</h3>
+            {% if insurance_companies %}
+                <ul class="data-list">
+                    {% for ic in insurance_companies %}
+                    <li>
+                        {{ ic.name }}
+                        <span class="data-details">- Created by {{ ic.created_by.username|default:"System" }} on {{ ic.data_entrance_date|date:"M d, Y" }}</span>
+                    </li>
+                    {% endfor %}
+                </ul>
+            {% else %}
+                <p class="no-data">No insurance companies registered</p>
+            {% endif %}
+        </div>
+
+        <div class="data-section">
+            <h3>👤 Existing Audit Users</h3>
+            {% if audit_by %} {# Matches the context variable name from the view #}
+                <ul class="data-list">
+                    {% for au in audit_by %} {# Loop through the list of audit users #}
+                    <li>
+                        {{ au.name }}
+                        <span class="data-details">- Created by {{ au.created_by.username|default:"System" }} on {{ au.data_entrance_date|date:"M d, Y" }}</span>
+                    </li>
+                    {% endfor %}
+                </ul>
+            {% else %}
+                <p class="no-data">No audit users registered</p>
+            {% endif %}
+        </div>
+
+
+                <div class="data-section">
+            <h3>👤 return by Users</h3>
+            {% if return_by_usr %} {# Matches the context variable name from the view #}
+                <ul class="data-list">
+                    {% for rbu in return_by_usr %} {# Loop through the list of audit users #}
+                    <li>
+                        {{ rbu.name }}
+                        <span class="data-details">- Created by {{ rbu.created_by.username|default:"System" }} on {{ rbu.data_entrance_date|date:"M d, Y" }}</span>
+                    </li>
+                    {% endfor %}
+                </ul>
+            {% else %}
+                <p class="no-data">No audit users registered</p>
+            {% endif %}
+        </div>
+
+
+
+         <div class="data-section">
+            <h3>👤 segregation by Users</h3>
+            {% if sgeregation_by_usr %} {# Matches the context variable name from the view #}
+                <ul class="data-list">
+                    {% for sbu in sgeregation_by_usr %} {# Loop through the list of audit users #}
+                    <li>
+                        {{ sbu.name }}
+                        <span class="data-details">- Created by {{ sbu.created_by.username|default:"System" }} on {{ sbu.data_entrance_date|date:"M d, Y" }}</span>
+                    </li>
+                    {% endfor %}
+                </ul>
+            {% else %}
+                <p class="no-data">No audit users registered</p>
+            {% endif %}
+        </div>
+
+                 <div class="data-section">
+            <h3>👤 Request by Users</h3>
+            {% if request_by_usr %} {# Matches the context variable name from the view #}
+                <ul class="data-list">
+                    {% for rbu in request_by_usr %} {# Loop through the list of audit users #}
+                    <li>
+                        {{ rbu.name }}
+                        <span class="data-details">- Created by {{ rbu.created_by.username|default:"System" }} on {{ rbu.data_entrance_date|date:"M d, Y" }}</span>
+                    </li>
+                    {% endfor %}
+                </ul>
+            {% else %}
+                <p class="no-data">No audit users registered</p>
+            {% endif %}
+        </div>
+
+        {% comment %} 
+        <div class="data-section">
+            <h3>NN. Existing Box status</h3>
+            ...
+        </div> 
+        {% endcomment %}
+    </div>
+</div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Radio button functionality
+        const radios = document.querySelectorAll('input[type="radio"]');
+        const inputField = document.querySelector('.input-group input');
+        const submitBtn = document.querySelector('.submit-button');
+
+        radios.forEach(radio => {
+            radio.addEventListener('change', function() {
+                if (this.checked) {
+                    inputField.style.opacity = '0';
+                    inputField.style.height = '0';
+                    inputField.style.display = 'block';
+                    submitBtn.style.display = 'block';
+                    
+                    setTimeout(() => {
+                        inputField.style.opacity = '1';
+                        inputField.style.height = '40px'; // Or your desired height
+                        inputField.focus();
+                    }, 10);
+                }
+            });
+        });
+
+        // Auto-remove alerts after 5 seconds
+        document.querySelectorAll('.alert-message').forEach(alert => {
+            setTimeout(() => {
+                alert.classList.remove('active');
+                setTimeout(() => alert.remove(), 500);
+            }, 5000);
+        });
+
+        // Close button handler
+        document.querySelectorAll('.alert-close').forEach(btn => {
+            btn.addEventListener('click', function() {
+                const alert = this.closest('.alert-message');
+                alert.classList.remove('active');
+                setTimeout(() => alert.remove(), 500);
+            });
+        });
+    });
+</script>
+{% endblock content %}

@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Delete Box by Number</title>
+</head>
+<body>
+    <h1>Delete Box by Number</h1>
+
+    <!-- Display success or error messages -->
+    {% if success_message %}
+        <p style="color: green;">{{ success_message }}</p>
+    {% endif %}
+    {% if error_message %}
+        <p style="color: red;">{{ error_message }}</p>
+    {% endif %}
+
+    <!-- Form to input box_number -->
+    <form method="post" action="{% url 'delete_box_by_number' %}">
+        {% csrf_token %}
+        <label for="box_number">Box Number:</label>
+        <input type="text" id="box_number" name="box_number" required>
+        <button type="submit" name="delete">Delete Box</button>
+    </form>
+
+    <!-- Link to go back or navigate elsewhere -->
+    <p><a href="{% url 'box_list' %}">Go back to Home</a></p>
+</body>
+</html>

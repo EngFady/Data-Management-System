@@ -1,0 +1,70 @@
+{% extends 'arcapp/base.html' %}
+
+{% block title %}Box List{% endblock %}
+
+{% block content %}
+<h2>Box List</h2>
+
+<!-- Inline Styles for Table Rows -->
+<style>
+    table {
+        width: 100%;
+        border-collapse: collapse;
+    }
+
+    thead th {
+        background-color: #f2f2f2;
+        text-align: left;
+        padding: 8px;
+        text-align : center;
+    }
+
+    tbody td {
+        padding: 8px;
+        border: 1px solid #ddd;
+    }
+
+    .grey-row {
+        background-color:rgb(152, 148, 148); /* Light grey */
+    }
+
+    .white-row {
+        background-color: #ffffff; /* White */
+    }
+</style>
+
+<table>
+    <thead>
+        <tr>
+            <th>Box Number</th>
+            <th>Type</th>
+            <th>Location</th>
+            <th>Insurance Company</th>
+            <th>Data Entrance Date</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for box in boxes %}
+        <tr class="{% cycle 'grey-row' 'white-row' %}">
+            <td>{{ box.box_number }}</td>
+            <td>{{ box.box_type }}</td>
+            <td>{{ box.box_location }}</td>
+            <td>{{ box.insurance_company }}</td>
+            <td>{{ box.data_entrance_date }}</td>
+        </tr>
+        {% empty %}
+        <tr>
+            <td colspan="5">No boxes available.</td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+<div style = "pdding-bottom : 12px;"></div>
+<a href="{% url 'provider_segregation_create' %}">
+    <button class="full-width">Add Provider Segregation</button>
+</a>
+<a href="{% url 'reimbursement_segregation_create' %}">
+    <button class="full-width">Add Reimbursement Segregation</button>
+</a>
+
+{% endblock %}

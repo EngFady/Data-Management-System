@@ -1,0 +1,32 @@
+{% extends "arcapp/base.html" %}
+{% block content %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Centered Image</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh; /* Full viewport height */
+            background-color: #f4f4f4; /* Light background color */
+        }
+        img {
+            max-width: 80%; /* Ensure image doesn't exceed 80% of the page width */
+            max-height: 80%; /* Ensure image doesn't exceed 80% of the page height */
+            border: 2px solid #ddd; /* Optional border */
+            border-radius: 8px; /* Optional rounded corners */
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2); /* Optional shadow */
+        }
+    </style>
+</head>
+<body>
+    <img src="P:\go\the aechiving demo\demo4\arcproject\arcapp\static\arcapp\images\images.jpg" alt="Centered Image">
+</body>
+</html>
+{% endblock content %}

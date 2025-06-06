@@ -1,0 +1,53 @@
+{% extends "arcapp/base.html" %}
+
+{% block title %}Update Master Data{% endblock %}
+
+{% block content %}
+<style>
+    .cancel-button {
+        display: inline-block;
+        padding: 0.6rem 1rem;
+        background-color: #6c757d;
+        color: white;
+        border: none;
+        border-radius: 4px;
+        cursor: pointer;
+        text-decoration: none;
+        text-align: center;
+        margin-top: 1rem;
+    }
+    .cancel-button:hover {
+        background-color: #5a6268;
+    }
+</style>
+
+<div class="module-reset">
+    {% if error_message %}
+    <div class="alert-message error active">
+        {{ error_message }}
+        <button class="alert-close" onclick="this.parentElement.remove()">×</button>
+    </div>
+    {% endif %}
+
+    <div class="master-data-container">
+        <h2>✏️ Update {{ model_type|title }}</h2>
+        <form method="POST" class="master-data-form">
+            {% csrf_token %}
+            <div class="input-group">
+                {{ form.name }}
+            </div>
+            <button type="submit" class="submit-button">💾 Save Changes</button>
+            <a href="{% url 'manage_master_data' %}" class="cancel-button">Cancel</a>
+        </form>
+    </div>
+</div>
+
+<script>
+    // Initialize input field animation
+    document.addEventListener('DOMContentLoaded', function() {
+        const inputField = document.querySelector('.input-group input');
+        inputField.style.opacity = '1';
+        inputField.style.height = '40px';
+    });
+</script>
+{% endblock %}

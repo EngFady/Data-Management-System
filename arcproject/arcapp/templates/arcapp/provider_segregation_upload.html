@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Provider Segregation Upload</title>
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        body {
+            background-color: #f8f9fa;
+            padding: 20px;
+        }
+        .upload-container {
+            max-width: 800px;
+            margin: 40px auto;
+            background-color: white;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+        }
+        .card-header {
+            background-color: #f8f9fa;
+            border-bottom: 1px solid #dee2e6;
+            padding: 20px;
+            border-radius: 10px 10px 0 0;
+        }
+        .card-body {
+            padding: 30px;
+        }
+        .alert-info {
+            margin-top: 20px;
+        }
+        .btn-primary {
+            margin-top: 20px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="upload-container">
+            <div class="card-header">
+                <h2 class="text-center mb-0">Upload Provider Segregation CSV</h2>
+            </div>
+            <div class="card-body">
+                <form method="post" enctype="multipart/form-data">
+                    {% csrf_token %}
+                    
+                    <div class="form-group">
+                        {{ form.as_p }}
+                    </div>
+
+                    <div class="alert alert-info" role="alert">
+                        <h5>Required CSV Columns:</h5>
+                        <ul>
+                            <li>box_number (must be a valid Box ID)</li>
+                            <li>ClaimCode</li>
+                            <li>PolicyId</li>
+                            <li>policyname</li>
+                            <li>ClientId</li>
+                            <li>Member_name</li>
+                            <li>Provider_name</li>
+                            <li>Receive_date (YYYY-MM-DD format)</li>
+                            <li>Issuance_date (YYYY-MM-DD format)</li>
+                            <li>Segregation_date (YYYY-MM-DD format)</li>
+                            <li>Segregation_by</li>
+                            <li>Audit_date (YYYY-MM-DD format)</li>
+                            <li>Audit_by</li>
+                            <li>Box_status</li>
+                            <li>batchID</li>
+                            <li>Client_name</li>
+                            <li>claimscan (true/false)</li>
+                            <li>DeductedAmount (decimal number)</li>
+                        </ul>
+                    </div>
+
+                    <div class="text-center">
+                        <button type="submit" class="btn btn-primary">Upload CSV</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bootstrap JS and dependencies -->
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.10.2/dist/umd/popper.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.min.js"></script>
+</body>
+</html>

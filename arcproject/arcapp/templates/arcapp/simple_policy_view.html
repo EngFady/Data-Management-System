@@ -1,0 +1,216 @@
+{% extends 'arcapp/base.html' %}
+{% load static %}
+
+{% block content %}
+<div class="page-container">
+  <div class="gradient-container">
+    <div class="header-controls">
+      <h2 class="table-title">✨ Insurance Policies 📋</h2>
+      <a href="{% url 'export_policies_csv' %}" class="export-button">
+        📥 Export CSV
+      </a>
+    </div>
+    
+    <!-- Enhanced Data Table -->
+    <div class="policy-card">
+      <div class="card-header">
+        <div class="header-row">
+          <div class="header-col">
+            <h5 class="header-title">🔍 Policy Data</h5>
+          </div>
+          <div class="header-col text-end">
+            <span class="policy-count">📊 Total: {{ all_policies.count }} policies</span>
+          </div>
+        </div>
+      </div>
+      <div class="card-body">
+        <div class="table-responsive">
+          <table class="policy-table">
+            <thead>
+              <tr>
+                <th>🔢 Policy ID</th>
+                <th>🏢 Insurance Company</th>
+                <th>👤 Client Name</th>
+                <th>👤 Client id</th>
+                <th>👤 Create by</th>
+                <th> Update by </th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for policy in all_policies %}
+              <tr>
+                <td>{{ policy.policy_id }}</td>
+                <td>{{ policy.insurance_company }}</td>
+                <td>{{ policy.client_name|default:"-" }}</td>
+                <td>{{ policy.client_id|default:"-" }}</td>
+                <td>{{ policy.created_by|default:"-" }}</td>
+                <td>{{ policy.Update_by|default:"-" }}</td>
+
+              </tr>
+              {% empty %}
+              <tr>
+                <td colspan="3" class="empty-message">
+                  <div>
+                    <i class="fas fa-info-circle"></i> No insurance policies found 🔎
+                  </div>
+                </td>
+              </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<style>
+  /* Container styling */
+  .page-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 80vh;
+    padding: 2rem;
+  }
+  
+  .gradient-container {
+    width: 100%;
+    max-width: 900px;
+    padding: 2rem;
+    border-radius: 15px;
+    background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+  }
+
+  /* Header controls */
+  .header-controls {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1.5rem;
+  }
+
+  /* Export button styling */
+  .export-button {
+    background:rgb(24, 170, 55);
+    color: white;
+    padding: 0.8rem 1.5rem;
+    border-radius: 25px;
+    text-decoration: none;
+    font-weight: 600;
+    transition: all 0.3s ease;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    box-shadow: 0 3px 6px rgba(0, 0, 0, 0.1);
+    border: 2px solid rgba(255, 255, 255, 0.2);
+  }
+
+  .export-button:hover {
+    background:rgb(11, 225, 61);
+    transform: translateY(-2px);
+    box-shadow: 0 5px 12px rgba(0, 0, 0, 0.15);
+    color: white;
+  }
+
+  /* Title styling */
+  .table-title {
+    color: #2c3e50;
+    font-weight: 700;
+    font-size: 2rem;
+    margin: 0;
+  }
+  
+  /* Card styling */
+  .policy-card {
+    background-color: white;
+    border-radius: 10px;
+    overflow: hidden;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+  }
+  
+  .card-header {
+    background-color:rgb(8, 237, 130);
+    color: white;
+    padding: 1rem 1.5rem;
+  }
+  
+  .header-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  
+  .header-title {
+    margin: 0;
+    font-weight: 600;
+    font-size: 1.2rem;
+  }
+  
+  .policy-count {
+    font-size: 0.9rem;
+    opacity: 0.9;
+  }
+  
+  .card-body {
+    padding: 0;
+  }
+  
+  /* Table styling */
+  .policy-table {
+    width: 100%;
+    border-collapse: collapse;
+  }
+  
+  .policy-table th {
+    background-color:rgb(7, 234, 75);
+    color: white;
+    padding: 1rem;
+    text-align: left;
+    font-weight: 600;
+    border-bottom: 3px solidrgb(21, 185, 54);
+  }
+  
+  .policy-table td {
+    padding: 0.8rem 1rem;
+    border-bottom: 1px solid #e0e0e0;
+  }
+  
+  .policy-table tr:hover {
+    background-color: #f5f9ff;
+  }
+  
+  .policy-table tr:last-child td {
+    border-bottom: none;
+  }
+  
+  .empty-message {
+    text-align: center;
+    padding: 2rem !important;
+    color: #7f8c8d;
+  }
+
+  /* Responsive design */
+  @media (max-width: 768px) {
+    .header-controls {
+      flex-direction: column;
+      gap: 1rem;
+      align-items: flex-start;
+    }
+    
+    .export-button {
+      width: 100%;
+      justify-content: center;
+    }
+    
+    .table-title {
+      font-size: 1.5rem;
+    }
+    
+    .gradient-container {
+      padding: 1rem;
+    }
+  }
+</style>
+{% endblock %}

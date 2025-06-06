@@ -1,0 +1,682 @@
+{% load static %}
+<!DOCTYPE html>
+<html>
+<head>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+<style>
+    .title {
+        color: #5C6AC4;
+    }
+  
+    *{
+      text-decoration: none;
+      box-sizing: border-box;
+    }
+    
+    .navbar{
+      background:-webkit-linear-gradient(left, #aaa8a8 1%, #ffffff 25%, #ffffff 75%, #aaa8a8 100%);
+      background-image: linear-gradient(to right, #aaa8a8 1%, #ffffff 25%, #ffffff 75%, #aaa8a8 100%); 
+      font-family: calibri; 
+      padding-right: 15px;
+      padding-left: 15px; 
+      top:0;
+      border-bottom-style: solid;
+      border-color: rgb(246 129 31);
+      box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+    }
+    
+    .navdiv{
+      display: flex; 
+      align-items: center; 
+      justify-content: space-between;
+    }
+
+    .logo a{
+      font-size: 35px; 
+      font-weight: 600; 
+      color: #0c5435;
+      margin-left: 5.5013cm;
+      text-shadow: 1px 1px 2px rgba(0,0,0,0.1);
+    }
+    
+    li{
+      list-style: none; 
+      display: inline-block;
+    }
+    
+    li a{
+      color: white; 
+      font-size: 18px; 
+      font-weight: bold; 
+      margin-left: 25px;
+    }
+    
+    .nav-button{
+      background-color:#0c5435; 
+      margin-left: 30px; 
+      border-radius: 10px; 
+      padding: 10px; 
+      width: 90px;
+      border: none;
+      transition: all 0.3s ease;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+    }
+    
+    .nav-button:hover {
+      background-color: rgb(246 129 31);
+      transform: translateY(-2px);
+      box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+    }
+    
+    .nav-button a{
+      color: #e6eba7; 
+      font-weight: bold; 
+      font-size: 15px;
+      display: block;
+      width: 100%;
+      text-align: center;
+    }
+  
+    img {
+      display: block;
+      margin-left: auto;
+      margin-right: auto;
+    }
+    
+    body, html {
+      height: 100%;
+      margin: 0;
+      padding: 0;
+      font-family: 'Calibri', sans-serif;
+    }
+    
+    /* Enhanced dropdown button */
+    .dropdown-btn {
+      padding: 12px 16px;
+      text-decoration: none;
+      font-size: 22px;
+      color: #e6eba7;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border: none;
+      background: none;
+      width: 100%;
+      text-align: left;
+      cursor: pointer;
+      outline: none;
+      margin: 4px 0;
+      border-radius: 6px;
+      transition: all 0.3s ease;
+    }
+  
+    .sidenav a:hover {
+      color: #ffffff;
+      background-color: rgb(246 129 31);
+      transform: translateX(5px);
+    }
+    
+    .dropdown-btn:hover {
+      color: #ffffff;
+      background-color: rgba(246, 129, 31, 0.8);
+      transform: translateX(5px);
+    }
+  
+    .active {
+      background-color: rgb(246 129 31);
+      color: #ffffff;
+      border-radius: 6px;
+    }
+  
+    /* Enhanced dropdown container */
+    .dropdown-container {
+      display: none;
+      background-color: rgba(12, 84, 53, 0.8);
+      color: #e6eba7;
+      padding-left: 8px;
+      border-radius: 6px;
+      margin-left: 10px;
+      margin-right: 10px;
+      margin-bottom: 10px;
+      max-height: 0;
+      overflow: hidden;
+      transition: max-height 0.5s ease;
+    }
+    
+    .dropdown-container.show {
+      max-height: 1000px;
+    }
+    
+    /* Compact sub-navigation items */
+    .dropdown-container a {
+      padding: 8px 12px;
+      font-size: 18px;
+      margin: 2px 5px;
+    }
+    
+    /* Scrollable dropdown when it gets too long */
+    .dropdown-container.scrollable {
+      max-height: 300px;
+      overflow-y: auto;
+    }
+    
+    /* Scrollbar styling for dropdown */
+    .dropdown-container.scrollable::-webkit-scrollbar {
+      width: 6px;
+    }
+    
+    .dropdown-container.scrollable::-webkit-scrollbar-track {
+      background: rgba(0,0,0,0.1);
+      border-radius: 10px;
+    }
+    
+    .dropdown-container.scrollable::-webkit-scrollbar-thumb {
+      background: rgba(246, 129, 31, 0.6);
+      border-radius: 10px;
+    }
+    
+    .dropdown-container.scrollable::-webkit-scrollbar-thumb:hover {
+      background: rgb(246, 129, 31);
+    }
+  
+    /* Enhanced caret icon */
+    .fa-caret-down {
+      transition: transform 0.3s ease;
+      color: #e6eba7;
+    }
+    
+    .active .fa-caret-down {
+      transform: rotate(180deg);
+    }
+  
+    /* Enhanced sidebar */
+    .sidenav {
+      height: 100%;
+      width: 0;
+      position: fixed;
+      z-index: 10;
+      top: 0;
+      left: 0;
+      background-color: #0c5435;
+      overflow-x: hidden;
+      padding-top: 90px;
+      transition: 0.5s;
+      box-shadow: 5px 0 15px rgba(0,0,0,0.2);
+    }
+  
+    .sidenav a {
+      padding: 12px 16px;
+      text-decoration: none;
+      font-size: 18px;
+      color: #e6eba7; 
+      font-weight: bold;
+      display: block;
+      transition: all 0.3s ease;
+      border: none;
+      background: none;
+      text-align: left;
+      cursor: pointer;
+      outline: none;
+      margin: 4px 10px;
+      border-radius: 6px;
+    }
+  
+    .sidenav a:hover {
+      color: #ffffff;
+      background-color: rgb(246 129 31);
+    }
+  
+    .sidenav .closebtn {
+      color: #e6eba7;
+      position: absolute;
+      top: 10px;
+      right: 25px;
+      font-size: 36px;
+      margin-left: 50px;
+      background: none;
+      padding: 5px 10px;
+      border-radius: 50%;
+      transition: all 0.3s ease;
+    }
+    
+    .sidenav .closebtn:hover {
+      background-color: rgba(246, 129, 31, 0.5);
+      transform: rotate(90deg);
+    }
+  
+    #main {
+      transition: margin-left .5s;
+    }
+    
+    /* Enhanced hamburger menu */
+    .menu-icon {
+      font-size: 50px;
+      cursor: pointer;
+      color: #0c5435;
+      transition: all 0.3s ease;
+      padding: 5px;
+      border-radius: 8px;
+    }
+    
+    .menu-icon:hover {
+      color: rgb(246 129 31);
+      transform: scale(1.1);
+    }
+  
+    .footer {
+      background-image: linear-gradient(#aaa8a8 ,#ffffff); 
+      font-family: calibri; 
+      text-align: center;
+      padding: 20px;
+      position: flex;
+      bottom: 0;
+      width: 100%;
+      font-size: 18px;
+      border-top-style: solid;
+      border-color: rgb(246 129 31);
+    }
+  
+    .footer p {
+      margin: 8px 0;
+      color: #000000;
+    }
+  
+    .developers {
+      display: flex;
+      justify-content: center;
+      gap: 40px;
+      margin-top: 10px;
+    }
+  
+    .developers div {
+      text-align: center;
+    }
+  
+    .developers p {
+      margin: 5px 0;
+      font-weight: bold;
+      color: #0c5435;
+    }
+  
+    .developers span {
+      font-size: 13px;
+      color: #0712aa;
+    }
+  
+    .content {
+      padding: 20px;
+      margin-top: 20px;
+      min-height: calc(100vh - 160px);
+    }
+    
+    .content button:not(.nav-button):not(.dropdown-btn) {
+      display: block;
+      width: 100%;
+      margin-left: 0;
+      text-align: center;
+    }
+    
+    .content form {
+      width: 100%;
+      box-sizing: border-box;
+    }
+    
+    .content form input,
+    .content form select,
+    .content form textarea {
+      display: block;
+      width: 100%;
+      box-sizing: border-box;
+    }
+    
+    .content form > div {
+      width: 100%;
+      box-sizing: border-box;
+      margin-bottom: 15px;
+    }
+    
+    /* Enhanced attachment button */
+    .btn-attachment {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      padding: 10px 15px;
+      background-color: #0c5435;
+      color: #e6eba7;
+      border: none;
+      border-radius: 6px;
+      font-size: 16px;
+      font-weight: bold;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+      margin: 5px 0;
+    }
+    
+    .btn-attachment:hover {
+      background-color: rgb(246 129 31);
+      transform: translateY(-2px);
+      box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+    }
+    
+    .btn-attachment i {
+      margin-right: 8px;
+    }
+    
+    /* Media queries for responsiveness */
+    @media screen and (max-height: 450px) {
+      .sidenav {padding-top: 15px;}
+      .sidenav a {font-size: 18px;}
+    }
+    
+    @media screen and (max-width: 768px) {
+      .logo a {
+        font-size: 24px;
+        margin-left: 0;
+      }
+      
+      .nav-button {
+        margin-left: 10px;
+        padding: 8px;
+        width: 80px;
+      }
+      
+      .menu-icon {
+        font-size: 40px;
+      }
+    }
+</style>
+
+{% block extra_css %}{% endblock %}
+
+</head>
+<body>
+
+<div class="header">
+    <nav class="navbar">
+        <div class="navdiv">
+            <div id="main">
+                <span class="menu-icon" onclick="openNav()">&#9776;</span>
+            </div>
+            <div class="logo"><a href="#">AMC Document Management System</a> </div>
+            <ul>
+                <button class="nav-button"><a href="{% url 'home_kpi' %}">Home</a></button>
+                <button class="nav-button"><a href="{% url 'login' %}">Log out</a></button>
+            </ul>
+        </div>
+    </nav>
+</div>
+
+<div id="mySidenav" class="sidenav">
+    <a href="javascript:void(0)" class="closebtn" onclick="closeNav()">&times;</a>
+
+    <button class="dropdown-btn">
+        <span>Box Management</span>
+        <i class="fas fa-caret-down"></i>
+    </button>
+    <div class="dropdown-container">
+        {% if perms.arcapp.can_create_box %}
+        <a href="{% url 'box_create' %}"><i class="fas fa-plus-circle"></i> Create box</a>
+        {% endif %}
+        
+        {% if perms.arcapp.can_view_box %}
+        <a href="{% url 'search_box' %}"><i class="fas fa-search"></i> Search box</a>
+        {% endif %}
+
+        {% if perms.arcapp.can_update_box %}
+        <a href="{% url 'update_box' %}"><i class="fas fa-edit"></i> Update box</a>
+        {% endif %}
+
+        {% if perms.arcapp.can_delete_box %}
+        <a href="{% url 'delete_box' %}"><i class="fas fa-trash-alt"></i> Delete box</a>
+        {% endif %}
+
+        {% if perms.arcapp.can_create_box %}
+        <a href="{% url 'upload_csv' %}"><i class="fas fa-file-import"></i> Import box bulk</a>
+        {% endif %}
+
+        {% if perms.arcapp.can_update_box %}
+        <a href="{% url 'bulk_update_boxes' %}"><i class="fas fa-edit"></i> Update box bulk</a>
+        {% endif %}
+
+        {% if perms.arcapp.can_delete_box %}
+        <a href="{% url 'bulk_delete_boxes' %}"><i class="fas fa-trash-alt"></i> Delete box bulk</a>
+        {% endif %}
+
+        <a href="{% url 'deduct' %}"><i class="fas fa-minus-circle"></i> Deduct</a>
+    </div>
+
+    <button class="dropdown-btn">
+        <span>Segregation</span>
+        <i class="fas fa-caret-down"></i>
+    </button>
+    <div class="dropdown-container scrollable">
+      {% if perms.arcapp.can_create_provider_segre %}
+        <a href="{% url 'provider_segregation_create' %}"><i class="fas fa-plus-circle"></i> Add Claim-Code</a>
+      {% endif %}
+
+      {% if perms.arcapp.can_view_provider_segre %}
+        <a href="{% url 'search_provider' %}"><i class="fas fa-search"></i> Search ClaimCode</a>
+      {% endif %}
+
+      {% if perms.arcapp.can_update_provider_segre %}
+        <a href="{% url 'update_provider' %}"><i class="fas fa-edit"></i> Update Claim-Code</a>
+      {% endif %}
+
+      {% if perms.arcapp.can_delete_provider_segre %}
+        <a href="{% url 'delete_provider' %}"><i class="fas fa-trash-alt"></i> Delete Claim-Code</a>
+      {% endif %}
+
+      {% if perms.arcapp.can_create_provider_segre %}
+        <a href="{% url 'bulk_insert_claims' %}"><i class="fas fa-file-import"></i> Import Claim-Code by bulk</a>
+      {% endif %}
+
+      {% if perms.arcapp.can_update_provider_segre %}
+        <a href="{% url 'bulk_update_provider_segregation' %}"><i class="fas fa-edit"></i> Update Claim-Code by bulk</a>
+      {% endif %}
+
+      {% if perms.arcapp.can_delete_provider_segre %}
+        <a href="{% url 'bulk_delete_claims' %}"><i class="fas fa-trash-alt"></i> Delete Claim-Code bulk</a>
+      {% endif %}
+
+      <a href="{% url 'claim_ret' %}"><i class="fas fa-file-download"></i> Claim Retrieval</a>
+
+      {% if perms.arcapp.can_create_rein_segre %}
+        <a href="{% url 'reimbursement_segregation_create' %}"><i class="fas fa-plus-circle"></i> Create Reimbursement</a>
+      {% endif %}
+
+      {% if perms.arcapp.can_view_reim_segre %}
+        <a href="{% url 'search_riem' %}"><i class="fas fa-search"></i> Search Reimbursement</a>
+      {% endif %}
+
+      {% if perms.arcapp.can_update_provider_segre %}
+        <a href="{% url 'update_riem' %}"><i class="fas fa-edit"></i> Update Reimbursement</a>
+      {% endif %}
+
+      {% if perms.arcapp.can_delete_reim_segre %}
+        <a href="{% url 'delete_riem' %}"><i class="fas fa-trash-alt"></i> Delete Reimbursement</a>
+      {% endif %}
+
+      {% if perms.arcapp.can_create_rein_segre %}
+        <a href="{% url 'bulk_insert_reim_claims' %}"><i class="fas fa-file-import"></i> Import Reimbursement bulk</a>
+      {% endif %}
+
+      {% if perms.arcapp.can_update_reim_segre %}
+        <a href="{% url 'bulk_update_reim_segre' %}"><i class="fas fa-edit"></i> Update Reimbursement bulk</a>
+      {% endif %}
+
+      {% if perms.arcapp.can_delete_reim_segre %}
+        <a href="{% url 'bulk_delete_riem_segre' %}"><i class="fas fa-trash-alt"></i> Delete Reimbursement bulk</a>
+      {% endif %}
+    </div>
+
+    <!-- NEW: Data Staging dropdown section -->
+    <button class="dropdown-btn">
+        <span>Data Staging</span>
+        <i class="fas fa-caret-down"></i>
+    </button>
+    <div class="dropdown-container">
+        <a href="{% url 'segregation_step_list' %}"><i class="fas fa-list"></i> Segregation Steps</a>
+        <a href="{% url 'segregation_step_create' %}"><i class="fas fa-plus-circle"></i> Create Segregation Step</a>
+    </div>
+
+    <a href="{% url 'top_deductions' %}"><i class="fas fa-chart-bar"></i> Data Visualization</a>
+
+    <button class="dropdown-btn">
+        <span>Master Data Management</span>
+        <i class="fas fa-caret-down"></i>
+    </button>
+    <div class="dropdown-container">
+      <a href="{% url 'manage_master_data' %}"><i class="fas fa-database"></i> Master Data</a>
+      <a href="{% url 'master_data_list' %}"><i class="fas fa-edit"></i> Update Master Data</a>
+    </div>
+
+    <button class="dropdown-btn">
+        <span>Insurance Policy Mgt</span>
+        <i class="fas fa-caret-down"></i>
+    </button>
+    <div class="dropdown-container">
+      {% if perms.arcapp.can_create_insurance %}
+        <a href="{% url 'manage_insurance_policy' %}"><i class="fas fa-file-contract"></i> Insurance Policy</a>
+      {% endif %}
+
+      {% if perms.arcapp.can_view_inurance %}
+        <a href="{% url 'view_insurance_policies' %}"><i class="fas fa-list"></i> All Insurance Policies</a>
+      {% endif %}
+
+      {% if perms.arcapp.can_update_insurance %}
+        <a href="{% url 'update_insurance' %}"><i class="fas fa-edit"></i> Update Insurance Policy</a>
+      {% endif %}
+
+      {% if perms.arcapp.can_delete_insurance %}
+        <a href="{% url 'ddelete_insurance' %}"><i class="fas fa-trash-alt"></i> Delete Insurance Policy</a>
+      {% endif %}
+    </div>
+
+    <!-- Reports dropdown with unique icons -->
+    <button class="dropdown-btn">
+        <span>Reports</span>
+        <i class="fas fa-caret-down"></i>
+    </button>
+    <div class="dropdown-container scrollable">
+        <a href="{% url 'claims_per_policy_repo' %}"><i class="fas fa-file-invoice"></i> Claims Per Policy</a>
+        <a href="{% url 'claims_per_box' %}"><i class="fas fa-box"></i> Claims Per Box Number</a>
+        <a href="{% url 'claims_per_batch_report' %}"><i class="fas fa-layer-group"></i> Claims Per Batch</a>
+        <a href="{% url 'claims_per_request_date_report' %}"><i class="fas fa-calendar-day"></i> Claims Per Request Date</a>
+        <a href="{% url 'count_per_insurance_report' %}"><i class="fas fa-chart-pie"></i> Claims Count Per Insurance</a>
+        <a href="{% url 'box_stats_report' %}"><i class="fas fa-warehouse"></i> Box Count Per Insurance & Location</a>
+        <a href="{% url 'claims_per_date' %}"><i class="fas fa-calendar-alt"></i> Claims Per Date</a>
+        <a href="{% url 'claims_per_actor' %}"><i class="fas fa-user-edit"></i> Claims Per User</a>
+    </div>
+</div>
+
+<div class="content">
+    {% block content %}
+    {% endblock %}
+</div>
+
+<script>
+var dropdown = document.getElementsByClassName("dropdown-btn");
+var i;
+
+for (i = 0; i < dropdown.length; i++) {
+  dropdown[i].addEventListener("click", function() {
+    
+    this.classList.toggle("active");
+    
+    var dropdownContent = this.nextElementSibling;
+    if (dropdownContent.style.display === "block") {
+      
+      dropdownContent.classList.remove("show");
+      setTimeout(function() {
+        dropdownContent.style.display = "none";
+      }, 300);
+    } else {
+      
+      dropdownContent.style.display = "block";
+      setTimeout(function() {
+        dropdownContent.classList.add("show");
+      }, 10);
+    }
+    
+    // Check if this dropdown needs scrolling
+    if (dropdownContent.scrollHeight > 300) {
+      dropdownContent.classList.add("scrollable");
+    }
+    
+    var allDropdowns = document.getElementsByClassName("dropdown-container");
+    var allButtons = document.getElementsByClassName("dropdown-btn");
+    for (var j = 0; j < allDropdowns.length; j++) {
+      if (allDropdowns[j] !== dropdownContent && allDropdowns[j].style.display === "block") {
+        allButtons[j].classList.remove("active");
+        allDropdowns[j].classList.remove("show");
+        setTimeout((function(dropdown) {
+          return function() {
+            dropdown.style.display = "none";
+          };
+        })(allDropdowns[j]), 300);
+      }
+    }
+  });
+}
+
+function openNav() {
+  document.getElementById("mySidenav").style.width = "280px";
+  document.getElementById("main").style.marginLeft = "280px";
+  
+  // Remove staggered animation and show all items at once
+  var menuItems = document.querySelectorAll("#mySidenav a, #mySidenav .dropdown-btn");
+  menuItems.forEach(function(item) {
+    item.style.opacity = "1";
+    item.style.transform = "translateX(0)";
+    item.style.transition = "opacity 0.3s ease, transform 0.3s ease";
+  });
+}
+
+function closeNav() {
+  document.getElementById("mySidenav").style.width = "0";
+  document.getElementById("main").style.marginLeft = "0";
+}
+
+function createAttachmentButton(containerId, buttonText) {
+  const container = document.getElementById(containerId);
+  if (container) {
+    const button = document.createElement('button');
+    button.className = 'btn-attachment';
+    button.innerHTML = '<i class="fas fa-paperclip"></i> ' + buttonText;
+    button.onclick = function() {
+      
+      const fileInput = document.createElement('input');
+      fileInput.type = 'file';
+      fileInput.style.display = 'none';
+      fileInput.click();
+      
+      fileInput.onchange = function() {
+        if (fileInput.files.length > 0) {
+          const fileName = fileInput.files[0].name;
+          alert('File attached: ' + fileName);
+          
+        }
+      };
+      
+      document.body.appendChild(fileInput);
+      document.body.removeChild(fileInput);
+    };
+    container.appendChild(button);
+  }
+}
+
+document.addEventListener('DOMContentLoaded', function() {
+  // Check if any dropdown needs scrolling on page load
+  var allDropdowns = document.getElementsByClassName("dropdown-container");
+  for (var i = 0; i < allDropdowns.length; i++) {
+    if (allDropdowns[i].scrollHeight > 300) {
+      allDropdowns[i].classList.add("scrollable");
+    }
+  }
+});
+</script>
+
+</body>
+</html>

@@ -1,0 +1,159 @@
+{% extends "arcapp/base.html" %}
+
+{% block title %}Insurance Policy Management{% endblock %}
+
+{% block content %}
+<style>
+    .policy-container {
+        background-image: linear-gradient(#0cb946, #f8f8f8);
+        color: #020202;
+        padding: 25px;
+        border: 1px solid #0c5435;
+        border-radius: 6px;
+        box-shadow: 0 4px 8px #0c5435;
+        width: 500px;
+        margin: 30px auto;
+    }
+
+    .policy-container h2 {
+        color: rgb(0, 0, 0);
+        text-align: center;
+        margin-bottom: 1rem;
+        font-size: 2.0rem;
+    }
+
+    .policy-form {
+        display: flex;
+        flex-direction: column;
+        gap: 1.5rem;
+    }
+
+    .form-group {
+        margin-bottom: 1.5rem;
+    }
+
+    .form-select, .form-input {
+        width: 100%;
+        padding: 0.7rem 1rem;
+        border: 1px solid #0c5435;
+        border-radius: 50px;
+        margin-top: 5px;
+        transition: all 0.3s ease;
+    }
+
+    .form-select:focus, .form-input:focus {
+        outline: none;
+        box-shadow: 0 0 5px rgba(12, 185, 70, 0.5);
+    }
+
+    .submit-button {
+        padding: 0.6rem;
+        background-color: #007bff;
+        color: white;
+        border: none;
+        border-radius: 4px;
+        cursor: pointer;
+        width: 50%;
+        margin: 0 auto;
+        transition: background-color 0.3s;
+    }
+
+    .submit-button:hover {
+        background-color: #0056b3;
+    }
+
+    /* Alert styles same as master_data.html */
+</style>
+
+<div class="module-reset">
+    <div class="policy-container">
+        <h2>📄 Insurance Policy Management 🛡️</h2>
+        
+        {% if messages %}
+            {% for message in messages %}
+            <div class="alert-message {{ message.tags }}">
+                {{ message }}
+                <button class="alert-close" onclick="this.parentElement.remove()">×</button>
+            </div>
+            {% endfor %}
+        {% endif %}
+
+        <form method="POST" class="policy-form">
+            {% csrf_token %}
+            
+            <div class="form-group">
+                <label for="id_insurance_company">Insurance Company 🏢</label>
+                {{ form.insurance_company }}
+            </div>
+
+            <div class="form-group">
+                <label for="id_policy_id">Policy ID 🔢</label>
+                {{ form.policy_id }}
+            </div>
+
+            <div class="form-group">
+                <label for="id_client_name">Client Name 👤</label>
+                {{ form.client_name }}
+            </div>
+
+            <div class="form-group">
+                <label for="id_client_id">Client Id 🔢</label>
+                {{ form.client_id }}
+            </div>
+
+            <button type="submit" class="submit-button">💾 Save Policy</button>
+        </form>
+    </div>
+</div>
+<link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+
+<script>
+    // Same alert animation script as master_data.html
+    document.addEventListener('DOMContentLoaded', function() {
+        const alerts = document.querySelectorAll('.alert-message');
+        alerts.forEach(alert => {
+            setTimeout(() => alert.classList.add('active'), 50);
+            
+            setTimeout(() => {
+                alert.classList.remove('active');
+                setTimeout(() => alert.remove(), 500);
+            }, 5000);
+        });
+
+        document.querySelectorAll('.alert-close').forEach(btn => {
+            btn.addEventListener('click', function() {
+                const alert = this.closest('.alert-message');
+                alert.classList.remove('active');
+                setTimeout(() => alert.remove(), 500);
+            });
+        });
+    });
+
+
+    $(document).ready(function() {
+        $('#id_insurance_company').select2({ 
+            ajax: {
+                url: '{% url "ins-autocomplete" %}',
+                dataType: 'json',
+                delay: 250,
+                data: function(params) {
+                    return { term: params.term || '' };
+                },
+                processResults: function(data) {
+                    return { results: data.results };
+                }
+            },
+            minimumInputLength: 2,
+            placeholder: '🔍 Search for insurance Company',
+            width: '100%',
+            theme: 'classic',
+            containerCssClass: 'custom-select2',
+            dropdownCssClass: 'custom-select2-dropdown'
+        });
+    });
+        
+
+</script>
+{% endblock content %}

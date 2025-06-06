@@ -1,0 +1,363 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+<style>
+  
+  
+  .title {
+      color: #5C6AC4;
+  }
+
+ 
+  *{
+    text-decoration: none;
+  }
+  .navbar{
+    background:-webkit-linear-gradient(left, #aaa8a8 1%, #ffffff 25%, #ffffff 75%, #aaa8a8 100%);
+    background-image: linear-gradient(to right, #aaa8a8 1%, #ffffff 25%, #ffffff 75%, #aaa8a8 100%); font-family: calibri; padding-right: 15px;padding-left: 15px; top:0;
+    border-bottom-style: solid;
+    border-color: rgb(246 129 31);
+  }
+  .navdiv{
+    display: flex; align-items: center; justify-content: space-between;
+  }
+  .logo a{
+    font-size: 35px; font-weight: 600; color: #0c5435;
+   
+  }
+  li{
+    list-style: none; display: inline-block;
+  }
+  li a{
+    color: white; font-size: 18px; font-weight: bold; margin-left: 25px;
+    
+  }
+  button{
+    background-color:#0c5435 ; margin-left: 30px; border-radius: 10px; padding: 10px; width: 90px;
+  }
+  button a{
+    color: #e6eba7; font-weight: bold; font-size: 15px;
+  }
+
+
+
+
+
+  img {
+  display: block;
+  margin-left: auto;
+  margin-right: auto;
+}
+body, html {
+  height: 100%;
+}
+  
+
+ .dropdown-btn {
+  padding: 6px 8px 6px 16px;
+  text-decoration: none;
+  font-size: 22px;
+  color: #e6eba7;
+  display: block;
+  border: none;
+  background: none;
+  width: 100%;
+  text-align: left;
+  cursor: pointer;
+  outline: none;
+  margin-left: 0%;
+}
+
+/* On mouse-over */
+.sidenav a:hover {
+  color: #ffffff;
+  background-color:rgb(246 129 31);
+}
+.dropdown-btn:hover {
+  color: #ffffff;
+  background-color: rgb(246 129 31);
+}
+
+/* Add an active class to the active dropdown button */
+.active {
+  background-color: rgb(246 129 31);
+  color: #ffffff;
+}
+
+/* Dropdown container (hidden by default). Optional: add a lighter background color and some left padding to change the design of the dropdown content */
+.dropdown-container {
+  display: none;
+  background-color:e6eba7 rgb(246 129 31); 
+  color: #e6eba7;
+  padding-left: 8px;
+}
+
+/* Optional: Style the caret down icon */
+.fa-caret-down {
+  padding-right: 8px;
+  display: inline-block;
+    font: normal normal normal;
+    font-size: inherit;
+    text-rendering: auto;
+    color:  #e6eba7;
+}
+
+/* Some media queries for responsiveness */
+@media screen and (max-height: 450px) {
+  .sidenav {padding-top: 15px;}
+  .sidenav a {font-size: 18px;}
+}
+
+
+
+
+
+
+ 
+  /* The side navigation menu */
+.sidenav {
+  height: 100%; /* 100% Full-height */
+  width: 0; /* 0 width - change this with JavaScript */
+  position: fixed; /* Stay in place */
+  z-index: 1; /* Stay on top */
+  top: 0; /* Stay at the top */
+  left: 0;
+  background-color: #0c5435; /* Black*/
+  overflow-x: hidden; /* Disable horizontal scroll */
+  padding-top: 90px; /* Place content 60px from the top */
+  transition: 0.5s; /* 0.5 second transition effect to slide in the sidenav */
+}
+
+/* The navigation menu links */
+.sidenav a {
+  padding: 6px 8px 6px 16px;;
+  text-decoration: none;
+  font-size: 23px;
+  color: #e6eba7; 
+  font:bold;
+  display: block;
+  transition: 0.3s;
+  border: none;
+  background: none;
+  text-align: left;
+  cursor: pointer;
+  outline: none;
+  padding-bottom: 7%;
+  margin-left: 0%;
+}
+
+/* When you mouse over the navigation links, change their color */
+.sidenav a:hover {
+  color: #ffffff;
+  background-color:rgb(246 129 31);
+}
+
+/* Position and style the close button (top right corner) */
+.sidenav .closebtn {
+  color:#e6eba7;
+  position: absolute;
+  top: 0;
+  right: 25px;
+  font-size: 36px;
+  margin-left: 50px;
+}
+
+/* Style page content - use this if you want to push the page content to the right when you open the side navigation */
+#main {
+  transition: margin-left .5s;
+ 
+}
+
+/* On smaller screens, where height is less than 450px, change the style of the sidenav (less padding and a smaller font size) */
+@media screen and (max-height: 450px) {
+  .sidenav {padding-top: 15px;}
+  .sidenav a {font-size: 18px;}
+}
+
+
+
+
+
+
+.footer {
+   background-image: linear-gradient(#aaa8a8 ,#ffffff); font-family: calibri; 
+  text-align: center;
+  padding: 20px;
+  position: flex;
+  bottom: 0;
+  width: 100%;
+  font-size: 18px;
+  border-top-style: solid;
+  border-color: rgb(246 129 31);
+}
+
+.footer p {
+  margin: 8px 0;
+  color: #000000;
+}
+
+.developers {
+  display: flex;
+  justify-content: center;
+  gap: 40px; /* Adjust the gap between columns */
+  margin-top: 10px;
+}
+
+.developers div {
+  text-align: center;
+}
+
+.developers p {
+  margin: 5px 0;
+  font-weight: bold;
+  color: #0c5435;
+}
+
+.developers span {
+  font-size: 13px;
+  color: #0712aa;
+}
+
+
+
+
+
+
+</style>
+</head>
+<body>
+ 
+
+
+
+  <div class="header">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+         <nav class="navbar">
+         <div class="navdiv">
+           <!----main= 3lamet el open sidenav el 3 shorat*/ --->
+           <div id="main">
+               
+                
+            <span style="font-size:50px;cursor:pointer;color:#0c5435;" onclick="openNav()">&#9776;</span>
+          </div>
+         <div class="logo"><a href="#">AMC Archiving System</a> </div>
+                 <ul>
+                   <button><a href="{% url 'box_list' %}">Home</a></button>
+             </ul>
+             
+           </div>
+
+
+          
+         </div>
+
+         <img src="https://www.ahlymedical.com/wp-content/uploads/2024/11/420271233_869063681686334_6261812832024410999_n-300x300.jpg"  style="width:50%;">
+
+
+ <div id="mySidenav" class="sidenav">
+          <a href="javascript:void(0)" class="closebtn" onclick="closeNav()">&times;</a>
+          
+
+
+  <button class="dropdown-btn">Box Management  
+    <i class="fa fa-caret-down"></i>
+  </button>
+
+
+  <div class="dropdown-container">
+                <a href="file:///K:/vs/login%20page/create%20box.html">Create box</a>
+                <a href="{% url 'search_box' %}">Search box</a>
+                <a href="{% url 'update_box' %}">Update box</a>
+                <a href="{% url 'delete_box' %}">Delete box</a>
+                <a href="{% url 'upload_csv' %}">Import box bulk</a>
+                <a href="{% url 'bulk_update_boxes' %}">Update box bulk</a>
+                <a href="{% url 'bulk_delete_boxes' %}">Delete box bulk</a>
+                <a href="{% url 'deduct' %}">Deduct</a>
+  </div>
+
+
+  <button class="dropdown-btn">Segregation
+    <i class="fa fa-caret-down"></i>
+  </button>
+
+
+  <div class="dropdown-container">
+    <a href="{% url 'provider_segregation_create' %}">Create Provider</a>
+    <a href="{% url 'search_provider' %}">Search Provider</a>
+    <a href="{% url 'update_provider' %}">Update Provider</a>
+    <a href="{% url 'delete_provider' %}">Delete Provider</a>
+    <a href="{% url 'bulk_insert_claims' %}">Import Provider bulk</a>
+    <a href="{% url 'bulk_update_provider_segregation' %}">Update Provider bulk</a>
+    <a href="{% url 'bulk_delete_claims' %}">Delete Provider bulk</a>
+    <a href="{% url 'cl_retrieval' %}">Claim Retrieval</a>
+    <a href="{% url 'reimbursement_segregation_create' %}">Create Reimbursement</a>
+    <a href="{% url 'search_riem' %}">Search Reimbursement</a>
+    <a href="{% url 'update_riem' %}">Update Reimbursement</a>
+    <a href="{% url 'delete_riem' %}">Delete Reimbursement</a>
+    <a href="{% url 'bulk_insert_reim_claims' %}">Import Reimbursement bulk</a>
+    <a href="{% url 'bulk_update_reim_segre' %}">Update Reimbursement bulk</a>
+    <a href="{% url 'bulk_delete_riem_segre' %}">Delete Reimbursement bulk</a>
+    <a href=""></a>
+  </div>
+<a href="{% url 'top_deductions' %}">Data Visualization</a>
+
+</div>
+
+
+
+
+
+
+
+
+<footer class="footer">
+       
+  <p>Developed by:</p>
+  <div class="developers">
+     
+     
+  <div>
+    <p> Application Support Team </p>
+    <span></span>
+</div>
+</div>
+</footer>   
+
+
+<script>
+/* Loop through all dropdown buttons to toggle between hiding and showing its dropdown content - This allows the user to have multiple dropdowns without any conflict */
+var dropdown = document.getElementsByClassName("dropdown-btn");
+var i;
+
+for (i = 0; i < dropdown.length; i++) {
+  dropdown[i].addEventListener("click", function() {
+    this.classList.toggle("active");
+    var dropdownContent = this.nextElementSibling;
+    if (dropdownContent.style.display === "block") {
+      dropdownContent.style.display = "none";
+    } else {
+      dropdownContent.style.display = "block";
+    }
+  });
+}
+function openNav() {
+  document.getElementById("mySidenav").style.width = "250px";
+}
+
+/* Set the width of the side navigation to 0 */
+function closeNav() {
+  document.getElementById("mySidenav").style.width = "0";
+}
+
+
+</script>
+
+
+
+</body>
+</html> 
+
+
+
