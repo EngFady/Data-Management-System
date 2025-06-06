@@ -1,0 +1,575 @@
+{% extends 'arcapp/base.html' %}
+{% block content %}
+<!DOCTYPE html>
+<html>
+<head>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Add Provider Segregation</title>
+    <style>
+        :root {
+            /* Company Color Palette - Green/Orange */
+            --primary-green: #2d7d32;
+            --secondary-green: #4caf50;
+            --light-green: #c8e6c9;
+            --dark-green: #1b5e20;
+            --primary-orange: #ff8f00;
+            --secondary-orange: #ffb74d;
+            --light-orange: #fff3e0;
+            --dark-orange: #e65100;
+            
+            /* Neutral colors */
+            --white: #ffffff;
+            --light-gray: #f8f9fa;
+            --medium-gray: #6c757d;
+            --dark-gray: #343a40;
+            --border-gray: #dee2e6;
+        }
+
+        /* Popup message styling */
+        .alert-popup {
+            position: fixed;
+            top: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            padding: 16px 32px;
+            border-radius: 12px;
+            font-weight: 600;
+            z-index: 1000;
+            text-align: center;
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+            display: none;
+            backdrop-filter: blur(10px);
+            border: 2px solid transparent;
+            animation: slideInDown 0.3s ease-out;
+        }
+
+        @keyframes slideInDown {
+            from {
+                opacity: 0;
+                transform: translateX(-50%) translateY(-20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(-50%) translateY(0);
+            }
+        }
+        
+        body {  
+            background: linear-gradient(135deg, var(--light-green) 0%, var(--white) 50%, var(--light-orange) 100%);
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            padding: 20px;
+            min-height: 100vh;
+            margin: 0;
+        }
+        
+        .form-container {
+            background: linear-gradient(145deg, var(--white) 0%, var(--light-gray) 100%);
+            color: var(--dark-gray);
+            padding: 40px;
+            border: 3px solid transparent;
+            background-clip: padding-box;
+            border-radius: 20px;
+            box-shadow: 
+                0 20px 40px rgba(45, 125, 50, 0.1),
+                0 10px 20px rgba(255, 143, 0, 0.1),
+                inset 0 1px 0 rgba(255, 255, 255, 0.9);
+            max-width: 900px;
+            margin: 50px auto;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .form-container::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 6px;
+            background: linear-gradient(90deg, var(--primary-green) 0%, var(--secondary-green) 25%, var(--primary-orange) 75%, var(--dark-orange) 100%);
+            border-radius: 20px 20px 0 0;
+        }
+        
+        h1 {
+            font-size: 2.2rem;
+            font-weight: 700;
+            margin-bottom: 2rem;
+            background: linear-gradient(45deg, var(--primary-green), var(--primary-orange));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            text-align: center;
+            border-bottom: 3px solid var(--border-gray);
+            padding-bottom: 1rem;
+            position: relative;
+        }
+
+        h1::after {
+            content: '';
+            position: absolute;
+            bottom: -3px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 100px;
+            height: 3px;
+            background: linear-gradient(90deg, var(--primary-green), var(--primary-orange));
+            border-radius: 2px;
+        }
+        
+        .form-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+        
+        .form-group {
+            margin-bottom: 0;
+            position: relative;
+        }
+        
+        label {
+            font-weight: 600;
+            display: block;
+            margin-bottom: 0.75rem;
+            color: var(--dark-gray);
+            font-size: 1rem;
+            transition: color 0.3s ease;
+        }
+        
+        input, select, textarea {
+            width: 100%;
+            padding: 14px 16px;
+            border: 2px solid var(--border-gray);
+            border-radius: 12px;
+            font-size: 1rem;
+            background: var(--white);
+            color: var(--dark-gray);
+            transition: all 0.3s ease;
+            box-sizing: border-box;
+            font-family: inherit;
+        }
+        
+        input:focus, select:focus, textarea:focus {
+            border-color: var(--secondary-green);
+            outline: none;
+            box-shadow: 
+                0 0 0 3px rgba(76, 175, 80, 0.1),
+                0 4px 12px rgba(76, 175, 80, 0.15);
+            background: var(--white);
+            transform: translateY(-1px);
+        }
+
+        input:hover, select:hover, textarea:hover {
+            border-color: var(--secondary-orange);
+            transform: translateY(-1px);
+        }
+        
+        button {
+            background: linear-gradient(135deg, var(--primary-green) 0%, var(--secondary-green) 100%);
+            color: var(--white);
+            padding: 16px 32px;
+            border: none;
+            border-radius: 12px;
+            font-size: 1.1rem;
+            font-weight: 600;
+            cursor: pointer;
+            margin-top: 2rem;
+            width: 100%;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+            box-shadow: 0 4px 15px rgba(45, 125, 50, 0.3);
+        }
+
+        button::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, var(--primary-orange) 0%, var(--secondary-orange) 100%);
+            transition: left 0.3s ease;
+            z-index: -1;
+        }
+        
+        button:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 25px rgba(45, 125, 50, 0.4);
+        }
+
+        button:hover::before {
+            left: 0;
+        }
+
+        button:active {
+            transform: translateY(-1px);
+        }
+        
+        .text-danger {
+            color: var(--dark-orange);
+            font-size: 0.9rem;
+            margin-top: 0.5rem;
+            display: block;
+            font-weight: 500;
+        }
+
+        /* Validation message styling */
+        .validation-message {
+            padding: 12px 16px;
+            margin: 12px 0;
+            border-radius: 8px;
+            display: none;
+            font-size: 0.95rem;
+            font-weight: 500;
+        }
+
+        .validation-error {
+            background: linear-gradient(45deg, #ffebee, #fff3e0);
+            border: 2px solid var(--dark-orange);
+            color: var(--dark-orange);
+        }
+
+        .validation-success {
+            background: linear-gradient(45deg, var(--light-green), #e8f5e8);
+            border: 2px solid var(--secondary-green);
+            color: var(--dark-green);
+        }
+
+        /* Select2 Custom Styling */
+        .select2-container--classic .select2-selection--single {
+            height: 50px !important;
+            border: 2px solid var(--border-gray) !important;
+            border-radius: 12px !important;
+            background: var(--white) !important;
+        }
+
+        .select2-container--classic .select2-selection--single .select2-selection__rendered {
+            line-height: 46px !important;
+            color: var(--dark-gray) !important;
+            padding-left: 16px !important;
+        }
+
+        .select2-container--classic .select2-selection--single .select2-selection__arrow {
+            height: 46px !important;
+            right: 16px !important;
+        }
+
+        .select2-container--classic.select2-container--open .select2-selection--single {
+            border-color: var(--secondary-green) !important;
+            box-shadow: 
+                0 0 0 3px rgba(76, 175, 80, 0.1),
+                0 4px 12px rgba(76, 175, 80, 0.15) !important;
+        }
+
+        .select2-dropdown {
+            border: 2px solid var(--secondary-green) !important;
+            border-radius: 12px !important;
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15) !important;
+        }
+
+        .select2-results__option--highlighted {
+            background: linear-gradient(45deg, var(--secondary-green), var(--light-green)) !important;
+        }
+        
+        @media (max-width: 992px) {
+            .form-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+        
+        @media (max-width: 768px) {
+            .form-grid {
+                grid-template-columns: 1fr;
+                gap: 1.5rem;
+            }
+            
+            .form-container {
+                width: 95%;
+                margin: 20px auto;
+                padding: 30px 20px;
+            }
+
+            h1 {
+                font-size: 1.8rem;
+            }
+        }
+
+        /* Enhanced form field icons */
+        .form-group label {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .form-group label::before {
+            font-size: 1.2em;
+            filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.1));
+        }
+
+        /* Subtle animations */
+        .form-group {
+            animation: fadeInUp 0.6s ease-out;
+            animation-fill-mode: both;
+        }
+
+        .form-group:nth-child(1) { animation-delay: 0.1s; }
+        .form-group:nth-child(2) { animation-delay: 0.2s; }
+        .form-group:nth-child(3) { animation-delay: 0.3s; }
+        .form-group:nth-child(4) { animation-delay: 0.4s; }
+        .form-group:nth-child(5) { animation-delay: 0.5s; }
+        .form-group:nth-child(6) { animation-delay: 0.6s; }
+
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* Success/Error alert styling */
+        .alert-popup.success {
+            background: linear-gradient(135deg, var(--light-green), var(--white));
+            border-color: var(--secondary-green);
+            color: var(--dark-green);
+        }
+
+        .alert-popup.error {
+            background: linear-gradient(135deg, var(--light-orange), var(--white));
+            border-color: var(--primary-orange);
+            color: var(--dark-orange);
+        }
+    </style>
+</head>
+<body>
+    <div id="top-alert" class="alert-popup"></div>
+
+    <div class="form-container">
+        <h1>📦 Add Provider Segregation 📑</h1>
+
+        {% if messages %}
+            {% for message in messages %}
+                <div class="message-source" style="display: none;" data-type="{{ message.tags }}">{{ message }}</div>
+            {% endfor %}
+        {% endif %}
+
+        <form method="post">
+            {% csrf_token %}
+            <div class="form-grid">
+                {% for field in form %}
+                    <div class="form-group">
+                        <label for="{{ field.id_for_label }}">
+                            {% if field.name == "provider_name" %}👥 
+                            {% elif field.name == "reference_number" %}📄 
+                            {% elif field.name == "start_date" %}📅 
+                            {% elif field.name == "end_date" %}📆 
+                            {% elif field.name == "contact_email" %}📧 
+                            {% elif field.name == "phone_number" %}📱 
+                            {% elif field.name == "box_number" %}📦 
+                            {% elif field.name == "location" %}📍 
+                            {% elif field.name == "PolicyId" %}🔢
+                            {% elif field.name == "Client_name" %}👤
+                            {% elif field.name == "ClientId" %}🆔 {% else %}✔️{% endif %}
+                            {{ field.label }}
+                        </label>
+                        {{ field }}
+                        {% if field.errors %}
+                            <div class="text-danger">{{ field.errors }}</div>
+                        {% endif %}
+                    </div>
+                {% endfor %}
+            </div>
+            
+            <button type="submit">💾 Save Changes</button>
+        </form>
+    </div>
+
+    <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+    
+    <script>
+    // Show messages from Django messages framework as a top popup
+    document.addEventListener('DOMContentLoaded', function() {
+        const messages = document.querySelectorAll('.message-source');
+        const alertPopup = document.getElementById('top-alert');
+        
+        messages.forEach(message => {
+            alertPopup.textContent = message.textContent;
+            alertPopup.style.display = 'block';
+            alertPopup.className = 'alert-popup ' + (message.dataset.type === 'success' ? 'success' : 'error');
+            
+            setTimeout(() => {
+                alertPopup.style.display = 'none';
+            }, 4000);
+        });
+    });
+
+    $(document).ready(function() {
+        // Initialize Select2 for Box Number
+        $('#id_box_number').select2({
+            ajax: {
+                url: '{% url "box-autocomplete" %}',
+                dataType: 'json',
+                delay: 250,
+                data: function(params) {
+                    return { term: params.term || '' };
+                },
+                processResults: function(data) {
+                    return { results: data.results };
+                }
+            },
+            minimumInputLength: 2,
+            placeholder: '🔍 Search for a box number',
+            width: '100%',
+            theme: 'classic',
+            containerCssClass: 'custom-select2',
+            dropdownCssClass: 'custom-select2-dropdown'
+        });
+
+        // Event handler for when a box number is selected
+        $('#id_box_number').on('select2:select', function(e) {
+            var boxId = $(this).val();
+            if (boxId) {
+                $.ajax({
+                    url: '{% url "box-details" %}',
+                    data: { 'box_id': boxId },
+                    dataType: 'json',
+                    success: function(data) {
+                        console.log('Box details fetched:', data);
+                        $('#id_box_number').data('insurance-company-id', data.insurance_company_id);
+                        $('#id_box_number').data('insurance-company-name', data.insurance_company_name);
+                        validateInsuranceCompanyMatch();
+                    },
+                    error: function(xhr, status, error) {
+                        console.error("Error fetching box details:", error);
+                        $('#id_box_number').removeData('insurance-company-id');
+                        $('#id_box_number').removeData('insurance-company-name');
+                        validateInsuranceCompanyMatch();
+                    }
+                });
+            } else {
+                $('#id_box_number').removeData('insurance-company-id');
+                $('#id_box_number').removeData('insurance-company-name');
+                validateInsuranceCompanyMatch();
+            }
+        });
+
+        // Initialize Select2 for Policy ID
+        $('#id_PolicyId').select2({
+            ajax: {
+                url: '{% url "policyid-autocomplete" %}',
+                dataType: 'json',
+                delay: 250,
+                data: function(params) {
+                    return { term: params.term || '' };
+                },
+                processResults: function(data) {
+                    return { results: data.results };
+                }
+            },
+            minimumInputLength: 1,
+            placeholder: '🔍 Search for a Policy ID...',
+            width: '100%',
+            theme: 'classic'
+        });
+        
+        // Event handler for when a Policy ID is selected
+        $('#id_PolicyId').on('select2:select', function(e) {
+            var policyId = $(this).val();
+            
+            if (policyId) {
+                $.ajax({
+                    url: '{% url "get_policy_info" %}',
+                    data: { 'policy_id': policyId },
+                    dataType: 'json',
+                    success: function(data) {
+                        console.log('Policy info fetched:', data);
+                        $('#id_Client_name').val(data.client_name);
+                        $('#id_ClientId').val(data.client_id);
+                        
+                        $('#id_PolicyId').data('insurance-company-id', data.insurance_company_id);
+                        $('#id_PolicyId').data('insurance-company-name', data.insurance_company_name);
+                        
+                        validateInsuranceCompanyMatch();
+                    },
+                    error: function(xhr, status, error) {
+                        console.error("Error fetching policy information:", error);
+                        $('#id_Client_name').val('');
+                        $('#id_ClientId').val('');
+                        $('#id_PolicyId').removeData('insurance-company-id');
+                        $('#id_PolicyId').removeData('insurance-company-name');
+                        if (xhr.status === 404) {
+                            showTopAlert("Policy not found. Please check the policy ID.", "error");
+                        } else {
+                            showTopAlert("Error fetching policy details.", "error");
+                        }
+                        validateInsuranceCompanyMatch();
+                    }
+                });
+            } else {
+                $('#id_Client_name').val('');
+                $('#id_ClientId').val('');
+                $('#id_PolicyId').removeData('insurance-company-id');
+                $('#id_PolicyId').removeData('insurance-company-name');
+                validateInsuranceCompanyMatch();
+            }
+        });
+            
+        // Function to display messages at the top
+        function showTopAlert(message, type) {
+            const alertPopup = document.getElementById('top-alert');
+            alertPopup.textContent = message;
+            alertPopup.style.display = 'block';
+            alertPopup.className = 'alert-popup ' + type;
+            
+            setTimeout(() => {
+                alertPopup.style.display = 'none';
+            }, type === 'error' ? 5000 : 4000);
+        }
+
+        // Function to validate if Box and Policy belong to the same Insurance Company
+        function validateInsuranceCompanyMatch() {
+            const boxInsuranceId = $('#id_box_number').data('insurance-company-id');
+            const boxInsuranceName = $('#id_box_number').data('insurance-company-name');
+            const policyInsuranceId = $('#id_PolicyId').data('insurance-company-id');
+            const policyInsuranceName = $('#id_PolicyId').data('insurance-company-name');
+
+            if (boxInsuranceId && policyInsuranceId) {
+                if (boxInsuranceId != policyInsuranceId) {
+                    showTopAlert(
+                        `⚠️ Warning: Box belongs to ${boxInsuranceName} but Policy belongs to ${policyInsuranceName}. They must match.`,
+                        "error"
+                    );
+                } else {
+                    showTopAlert(
+                        `✅ Box and Policy both belong to ${boxInsuranceName}`,
+                        "success"
+                    );
+                }
+            }
+        }
+        
+        // Form submission validation
+        $('form').on('submit', function(e) {
+            const boxInsuranceId = $('#id_box_number').data('insurance-company-id');
+            const policyInsuranceId = $('#id_PolicyId').data('insurance-company-id');
+            
+            if (boxInsuranceId && policyInsuranceId && boxInsuranceId !== policyInsuranceId) {
+                e.preventDefault();
+                showTopAlert(
+                    '❌ Cannot submit: Policy and Box must belong to the same insurance company. Please correct the selection.',
+                    "error"
+                );
+            }
+        });
+    });
+    </script>
+</body>
+</html>
+{% endblock %}

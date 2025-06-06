@@ -1,0 +1,200 @@
+{% extends "arcapp/base.html" %}
+{% block content %}
+<!DOCTYPE html>
+<html>
+<head>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Create Box</title>
+    <style>
+        /* Add popup message styling (new code) */
+        .alert-popup {
+            position: fixed;
+            top: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            padding: 15px 30px;
+            border-radius: 5px;
+            font-weight: bold;
+            z-index: 1000;
+            text-align: center;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            display: none;
+        }
+        
+        /* Original styles remain untouched below */
+        body {  background:-webkit-linear-gradient(left, #aaa8a8 1%, #ffffff 25%, #ffffff 75%, #aaa8a8 100%);
+            background-image: linear-gradient(to right, #aaa8a8 1%, #ffffff 25%, #ffffff 75%, #aaa8a8 100%); font-family: calibri; padding-right: 15px;padding-left: 15px; top:0;
+        }
+        .form-container {
+            background-image: linear-gradient(#0cb946,#f8f8f8);
+            color: #020202;
+            padding: 20px;
+            border: 1px solid #0c5435;
+            border-radius: 6px;
+            box-shadow: 0 4px 8px #0c5435;
+            width: 400px;
+            margin: 50px auto;
+        }
+        h1 {
+            font-size: 1.5rem;
+            margin-bottom: 1rem;
+            color: #000000;
+            text-align: center;
+        }
+        label {
+            font-weight: bold;
+            display: block;
+            margin-bottom: 0.5rem;
+            color: #ddd;
+        }
+        .form-label{
+            color : rgb(22, 22, 22)
+        }
+        input, select {
+            width: 50%;
+            padding: 10px;
+            border: 1px solid #555;
+            border-radius: 4px;
+            font-size: 1rem;
+            background-color: #444;
+            color:rgb(245 129 31);
+        }
+        input:focus, select:focus {
+            border-color: #4CAF50;
+            outline: none;
+            box-shadow: 0 0 5px rgba(76, 175, 80, 0.5);
+        }
+        button {
+            background-color: #0c5435;
+            color: rgb(255, 255, 255);
+            padding: 10px 15px;
+            border: none;
+            border-radius: 4px;
+            font-size: 1rem;
+            cursor: pointer;
+            margin-top: 1rem;
+            width: 100%;
+            text-align: center;
+        }
+        button:hover {
+            background-color: rgb(246 129 31);
+            color: #ffffff;
+        }
+        #mb-3{
+            color : grey;
+        }
+    </style>
+</head>
+<body>
+    <!-- Popup Container (new element) -->
+    <div id="top-alert" class="alert-popup"></div>
+
+    <div class="form-container">
+        <h1>Create Box</h1>
+
+        <!-- Original messages section (hidden) -->
+        {% if messages %}
+            {% for message in messages %}
+                <div class="message-source" style="display: none;" data-type="{{ message.tags }}">{{ message }}</div>
+            {% endfor %}
+        {% endif %}
+
+        <form method="post">
+            {% csrf_token %}
+            <div class="mb-3">
+                <label for="{{ form.box_number.id_for_label }}" class="form-label">Box Number</label>
+                {{ form.box_number }}
+                {% if form.box_number.errors %}
+                    <div class="text-danger">{{ form.box_number.errors }}</div>
+                {% endif %}
+            </div>
+        
+            <div class="mb-3">
+                <label for="{{ form.box_type.id_for_label }}" class="form-label">Box Type</label>
+                {{ form.box_type }}
+                {% if form.box_type.errors %}
+                    <div class="text-danger">{{ form.box_type.errors }}</div>
+                {% endif %}
+            </div>
+        
+            <div class="mb-3">
+                <label for="{{ form.box_location.id_for_label }}" class="form-label">Box Location</label>
+                {{ form.box_location }}
+                {% if form.box_location.errors %}
+                    <div class="text-danger">{{ form.box_location.errors }}</div>
+                {% endif %}
+            </div>
+        
+
+            {% comment %} <div class="mb-3">
+                <label for="{{ form.status.id_for_label }}" class="form-label">Box Status</label>
+                {{ form.box_status }}
+                {% if form.status.errors %}
+                    <div class="text-danger">{{ form.status.errors }}</div>
+                {% endif %}
+            </div> {% endcomment %}
+            <div class="mb-3">
+                <label for="{{ form.insurance_company.id_for_label }}" class="form-label">Insurance Company</label>
+                {{ form.insurance_company }}
+                {% if form.insurance_company.errors %}
+                    <div class="text-danger">{{ form.insurance_company.errors }}</div>
+                {% endif %}
+            </div>
+        
+            <button type="submit">Save</button>
+        </form>
+    </div>
+    <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+
+    <script>
+        // Show messages as top popup (new code)
+        document.addEventListener('DOMContentLoaded', function() {
+            const messages = document.querySelectorAll('.message-source');
+            const alertPopup = document.getElementById('top-alert');
+            
+            messages.forEach(message => {
+                alertPopup.textContent = message.textContent;
+                alertPopup.style.display = 'block';
+                alertPopup.style.backgroundColor = message.dataset.type === 'success' ? '#d4edda' : '#f8d7da';
+                alertPopup.style.borderColor = message.dataset.type === 'success' ? '#c3e6cb' : '#f5c6cb';
+                alertPopup.style.color = message.dataset.type === 'success' ? '#155724' : '#721c24';
+                
+                setTimeout(() => {
+                    alertPopup.style.display = 'none';
+                }, 3000);
+            });
+        });
+
+
+
+
+ // Initialize Select2 with custom styling
+ $(document).ready(function() {
+    $('#id_insurance_company').select2({
+        ajax: {
+            url: '{% url "ins-autocomplete" %}',
+            dataType: 'json',
+            delay: 250,
+            data: function(params) {
+                return { term: params.term || '' };
+            },
+            processResults: function(data) {
+                return { results: data.results };
+            }
+        },
+        minimumInputLength: 2,
+        placeholder: '🔍 Search for insurance Company',
+        width: '100%',
+        theme: 'classic',
+        containerCssClass: 'custom-select2',
+        dropdownCssClass: 'custom-select2-dropdown'
+    });
+});
+
+
+    </script>
+</body>
+</html>
+{% endblock content %}

@@ -1,0 +1,220 @@
+{% extends 'arcapp/base.html' %}
+{% block content %}
+<!DOCTYPE html>
+<html>
+<head>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Add Reimbursement Segregation</title>
+    <style>
+        /* Popup message styling */
+        .alert-popup {
+            position: fixed;
+            top: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            padding: 15px 30px;
+            border-radius: 5px;
+            font-weight: bold;
+            z-index: 1000;
+            text-align: center;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            display: none;
+        }
+        
+        body {  
+            background:-webkit-linear-gradient(left, #aaa8a8 1%, #ffffff 25%, #ffffff 75%, #aaa8a8 100%); 
+            background-image: linear-gradient(to right, #aaa8a8 1%, #ffffff 25%, #ffffff 75%, #aaa8a8 100%); 
+            font-family: calibri; 
+            padding: 15px;
+        }
+        
+        .form-container {
+            background-image: linear-gradient(#0cb946,#f8f8f8);
+            color: #020202;
+            padding: 25px;
+            border: 1px solid #0c5435;
+            border-radius: 6px;
+            box-shadow: 0 4px 8px #0c5435;
+            max-width: 800px;
+            margin: 50px auto;
+        }
+        
+        h1 {
+            font-size: 1.8rem;
+            margin-bottom: 1.5rem;
+            color: #000000;
+            text-align: center;
+            border-bottom: 2px solid #0c5435;
+            padding-bottom: 0.5rem;
+        }
+        
+        .form-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 1.5rem;
+            margin-bottom: 1.5rem;
+        }
+        
+        .form-group {
+            margin-bottom: 0;
+        }
+        
+        label {
+            font-weight: 600;
+            display: block;
+            margin-bottom: 0.5rem;
+            color: #2d2d2d;
+            font-size: 0.95rem;
+        }
+        
+        input, select, textarea {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #555;
+            border-radius: 4px;
+            font-size: 1rem;
+            background-color: #f8f8f8;
+            color: #0c5435;
+            transition: all 0.3s ease;
+        }
+        
+        input:focus, select:focus, textarea:focus {
+            border-color: #0cb946;
+            outline: none;
+            box-shadow: 0 0 5px rgba(12, 185, 70, 0.3);
+            background-color: #fff;
+        }
+        
+        button {
+            background-color: #0c5435;
+            color: white;
+            padding: 12px 20px;
+            border: none;
+            border-radius: 4px;
+            font-size: 1.1rem;
+            cursor: pointer;
+            margin-top: 1.5rem;
+            width: 100%;
+            transition: all 0.3s ease;
+        }
+        
+        button:hover {
+            background-color: #0cb946;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(12, 92, 53, 0.3);
+        }
+        
+        .text-danger {
+            color: #dc3545;
+            font-size: 0.85rem;
+            margin-top: 0.25rem;
+            display: block;
+        }
+        
+        @media (max-width: 768px) {
+            .form-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .form-container {
+                width: 95%;
+                margin: 30px auto;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Popup Container -->
+    <div id="top-alert" class="alert-popup"></div>
+
+    <div class="form-container">
+        <h1>💰 Add Reimbursement Segregation 📑</h1>
+
+        <!-- Messages section -->
+        {% if messages %}
+            {% for message in messages %}
+                <div class="message-source" style="display: none;" data-type="{{ message.tags }}">{{ message }}</div>
+            {% endfor %}
+        {% endif %}
+
+        <form method="post">
+            {% csrf_token %}
+            <div class="form-grid">
+                {% for field in form.visible_fields %}
+                    <div class="form-group">
+                        <label for="{{ field.id_for_label }}">
+                            {% if field.name == "box_number" %}📦 
+                            {% elif field.name == "Claim_Code" %}🔢 
+                            {% elif field.name == "Batch_num" %}📋 
+                            {% elif field.name == "Batch_type" %}📝 
+                            {% elif field.name == "English_name" %}🇺🇸 
+                            {% elif field.name == "Arab_name" %}🇸🇦 
+                            {% elif field.name == "Payer" %}💵 
+                            {% elif field.name == "Policy" %}📜 
+                            {% elif field.name == "Hof" %}👨‍👩‍👧‍👦 
+                            {% elif field.name == "Audit_user" %}👤 
+                            {% elif field.name == "Audit_date" %}📅 
+                            {% else %}✔️{% endif %}
+                            {{ field.label }}
+                        </label>
+                        {{ field }}
+                        {% if field.errors %}
+                            <div class="text-danger">{{ field.errors }}</div>
+                        {% endif %}
+                    </div>
+                {% endfor %}
+            </div>
+            <button type="submit">💾 Save Changes</button>
+        </form>
+    </div>
+
+    <!-- Select2 Resources -->
+    <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+
+    <script>
+        // Show messages as top popup
+        document.addEventListener('DOMContentLoaded', function() {
+            const messages = document.querySelectorAll('.message-source');
+            const alertPopup = document.getElementById('top-alert');
+            
+            messages.forEach(message => {
+                alertPopup.textContent = message.textContent;
+                alertPopup.style.display = 'block';
+                alertPopup.style.backgroundColor = message.dataset.type === 'success' ? '#d4edda' : '#f8d7da';
+                alertPopup.style.borderColor = message.dataset.type === 'success' ? '#c3e6cb' : '#f5c6cb';
+                alertPopup.style.color = message.dataset.type === 'success' ? '#155724' : '#721c24';
+                
+                setTimeout(() => {
+                    alertPopup.style.display = 'none';
+                }, 3000);
+            });
+        });
+
+        // Initialize Select2 with custom styling
+        $(document).ready(function() {
+            $('#id_box_number').select2({
+                ajax: {
+                    url: '{% url "box-autocomplete" %}',
+                    dataType: 'json',
+                    delay: 250,
+                    data: function(params) {
+                        return { term: params.term || '' };
+                    },
+                    processResults: function(data) {
+                        return { results: data.results };
+                    }
+                },
+                minimumInputLength: 2,
+                placeholder: '🔍 Search for a box number',
+                width: '100%',
+                theme: 'classic',
+                containerCssClass: 'custom-select2',
+                dropdownCssClass: 'custom-select2-dropdown'
+            });
+        });
+    </script>
+</body>
+</html>
+{% endblock %}
